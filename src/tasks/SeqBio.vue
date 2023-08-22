@@ -116,6 +116,9 @@ export default {
     created: function () {
       window.addEventListener("keydown", this.handleKeyDown);
     },
+    beforeDestroy() {
+      window.removeEventListener('keydown', this.handleKeyDown);
+    },
   }
 }
 

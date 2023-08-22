@@ -16,27 +16,14 @@ export default {
     selectedWordId: Object,
   },
   methods: {
-    nextSentence() {
-      if (this.currentSentenceId.value < this.data.length) {
-        this.currentSentenceId.value++
-        this.selectedWordId.value = 0
-      }
-
-    },
-    prevSentence() {
-      if (this.currentSentenceId.value > 0) {
-        this.currentSentenceId.value--
-        this.selectedWordId.value = 0
-      }
-    },
     handleKeyDown(event) {
       // Do something
       if (event.keyCode == 39 && this.currentSentenceId.value < this.data.length) {
-        this.nextSentence()
+        this.$emit('nextSentence')
       }
 
       if (event.keyCode == 37 && this.currentSentenceId.value > 0) {
-        this.prevSentence()
+        this.$emit('prevSentence')
       }
 
       if (event.keyCode == 38 && this.selectedTaskId.value > 0) {
@@ -60,6 +47,9 @@ export default {
   created: function () {
     window.addEventListener("keydown", this.handleKeyDown);
   },
+  beforeDestroy() {
+    window.removeEventListener('keydown', this.handleKeyDown);
+  },
   components: { Seq, Class, SeqBio, Seq2Seq }
 }
 </script>
@@ -80,10 +70,10 @@ export default {
     </div>
     <div class="flex items-center font-medium text-gray-500 select-none justify-between w-[300px] mx-auto h-full">
       <div class="bg-gray-200 p-4 px-8 rounded-md cursor-pointer hover:bg-gray-300 hover:text-gray-700"
-        @click="prevSentence">Prev</div>
+        @click="$emit('prevSentence')">Prev</div>
       <p class="flex">{{ currentSentenceId.value + 1 }} / {{ data.length }}</p>
       <div class="bg-gray-200 p-4 px-8 rounded-md cursor-pointer hover:bg-gray-300 hover:text-gray-700"
-        @click="nextSentence">Next</div>
+        @click="$emit('nextSentence')">Next</div>
     </div>
   </div>
 </template>

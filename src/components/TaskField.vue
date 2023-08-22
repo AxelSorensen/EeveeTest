@@ -1,5 +1,10 @@
 <script>
 export default {
+  data() {
+    return {
+      emptyValue: null,
+    }
+  },
   props: {
     tasks: Array,
     selectedTaskId: Number,
@@ -8,6 +13,13 @@ export default {
     label: Object,
     data: Array,
     taskTypes: Array,
+  },
+  methods: {
+    setDefaultValue() {
+      this.data.map(data => data.words.map(word => ([
+        word[this.tasks[this.selectedTaskId.value].output_index] = this.emptyValue
+      ])));
+    }
   },
   computed: {
     uniqueLabels() {
@@ -35,7 +47,7 @@ export default {
 
 <template>
   <div class="grid-rows-[40px,1fr] px-10">
-    <div class="divide-y" v-if="tasks.length > 0">
+    <div class="divide-y pb-2" v-if="tasks.length > 0">
       <div class="text-center flex justify-center items-center"><input ref="title"
           v-model="tasks[selectedTaskId.value].title" @click="this.$refs.title.select();"
           class="text-center outline-none p-4" type="text">
@@ -51,16 +63,34 @@ export default {
               class=" p-1 text-sm px-4 cursor-pointer ring-1">{{ task_type.name }}</p>
           </div>
         </div>
-        <div class="flex flex-col py-4">
-          <label class="text-center text-sm font-semibold text-gray-500 mb-2" for="">Output</label>
-          <div class="flex gap-2 text-sm justify-evenly w-full">
-            <div class="flex gap-2 items-center relative">
-              <label>{{ this.tasks[selectedTaskId.value].type.isColumn ? 'Column index:' : 'Row index:' }}</label>
-              <input v-model="tasks[selectedTaskId.value].output_index"
-                class="bg-gray-100 outline-none w-10 p-2 rounded-sm text-center" type="text" placeholder="0">
+        <div class="flex gap-16 justify-center">
+
+          <div class="flex flex-col py-4">
+            <label class="text-center text-sm font-semibold text-gray-500 mb-2" for="">Output</label>
+            <div class="flex gap-2 text-sm justify-evenly w-full">
+              <div class="flex gap-2 items-center relative">
+                <label>{{ this.tasks[selectedTaskId.value].type.isColumn ? 'Column index:' : 'Row index:' }}</label>
+                <input v-model="tasks[selectedTaskId.value].output_index"
+                  class="bg-gray-100 outline-none w-10 p-2 rounded-sm text-center" type="text" placeholder="0">
+
+              </div>
 
             </div>
+          </div>
+          <div class="flex flex-col py-4">
+            <label class="text-center text-sm font-semibold text-gray-500 mb-2" for="">Default value</label>
+            <div class="flex gap-2 text-sm justify-evenly w-full">
+              <div class="flex gap-2 items-center relative">
+                <label>Value:</label>
+                <input v-model="emptyValue" class="bg-gray-100 outline-none w-10 p-2 rounded-sm text-center" type="text"
+                  placeholder="_">
+                <div @click="setDefaultValue"
+                  class="text-sm bg-gray-200 text-gray-500 p-2 rounded-sm hover:bg-gray-300 cursor-pointer whitespace-nowrap">
+                  Set value</div>
 
+              </div>
+
+            </div>
           </div>
         </div>
         <div class="flex flex-col py-4">
@@ -88,8 +118,10 @@ export default {
             </div>
 
           </div>
+
         </div>
       </div>
+
     </div>
     <div class="text-sm text-center flex justify-center items-center h-full text-gray-500" v-else>
       <div>

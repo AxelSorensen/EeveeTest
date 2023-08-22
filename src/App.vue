@@ -23,6 +23,19 @@ export default {
     };
   },
   methods: {
+    nextSentence() {
+      if (this.currentSentenceId.value < this.data.length) {
+        this.currentSentenceId.value++
+        this.selectedWordId.value = 0
+      }
+
+    },
+    prevSentence() {
+      if (this.currentSentenceId.value > 0) {
+        this.currentSentenceId.value--
+        this.selectedWordId.value = 0
+      }
+    },
     updateIDs() {
       this.tasks.map((item, index) => {
         item.id = index;
@@ -44,7 +57,6 @@ export default {
 
     },
     updateRowName(name) {
-      console.log(name)
       this.data.map(data => {
         data.strings[this.newRowIndex].name = name
       });
@@ -126,11 +138,11 @@ export default {
           } else {
             let data = reader.result.split(/(?=# sent_id)/);
             this.data = data.map(sentence => {
-              const strings = sentence.match(/#[^\n]*/g).map(strings => {
+              const strings = (sentence.match(/#[^\n]*/g)?.map(strings => {
                 return { name: strings.split('=')[0], string: strings.split('=')[1] }
-              });
+              })) ?? [];
               const rows = sentence.split("\n")
-              const words = rows.slice(strings.length).map(row => {
+              const words = rows.slice(strings?.length ?? 0).map(row => {
                 const cols = row.split("\t");
                 return cols;
               });
@@ -157,7 +169,7 @@ export default {
       <TaskField ref="taskfield" :tasks="tasks" :selectedTaskId="selectedTaskId" @addLabel="addLabel" :label="label"
         @deleteLabel="deleteLabel" :data="data" :taskTypes="taskTypes" @importLabels="importLabels" />
       <DataControls :data="data" :showStrings="showStrings" :currentSentenceId="currentSentenceId" @addRow="addRow"
-        @addColumn="addColumn" />
+        @addColumn="addColumn" @nextSentence="nextSentence" @prevSentence="prevSentence" />
       <DataField ref="datafield" :data="data" :showStrings="showStrings" @readFile="readFile" @addRow="addRow"
         @addColumn="addColumn" :refs="$refs" @deleteColumn="deleteColumn" @deleteRow="deleteRow"
         @updateRowName="updateRowName" :currentSentenceId="currentSentenceId" :tasks="tasks" />

@@ -11,19 +11,24 @@
         </span>
       </div>
       <div class="flex gap-4 w-full p-4">
-        <div class="rounded-md p-2 px-6 ring-purple-500 ring-2 font-bold text-center text-purple-500 relative select-none flex-grow"
-          :class="tasks[selectedTaskId.value].labels[index] == data[currentSentenceId.value]?.strings[tasks[selectedTaskId.value].output_index].string ? 'bg-purple-500 text-white' : ' hover:bg-purple-100 cursor-pointer'" @click="data[currentSentenceId.value].strings[tasks[selectedTaskId.value].output_index].string = tasks[selectedTaskId.value].labels[index]"
-          v-for="label, index in tasks[selectedTaskId.value]?.labels">
+        <div
+          class="rounded-md p-2 px-6 ring-purple-500 ring-2 font-bold text-center text-purple-500 relative select-none flex-grow"
+          :class="tasks[selectedTaskId.value].labels[index] == data[currentSentenceId.value]?.strings[tasks[selectedTaskId.value].output_index].string ? 'bg-purple-500 text-white' : ' hover:bg-purple-100 cursor-pointer'"
+          @click="data[currentSentenceId.value].strings[tasks[selectedTaskId.value].output_index].string = tasks[selectedTaskId.value].labels[index]"
+          v-for="label, index in tasks[selectedTaskId.value]?.labels.sort()">
           <p class="absolute text-xs top-0 left-1 p-1">{{ index + 1 }}</p>
           {{ label }}
         </div>
         <div class="w-full">
-          <textarea :value="data[currentSentenceId.value].strings[tasks[selectedTaskId.value].output_index].string == '_' ? '' : data[currentSentenceId.value].strings[tasks[selectedTaskId.value].output_index].string" @keydown.stop="" @input="event => setString(event)" placeholder="..." class="bg-gray-100 rounded-md outline-none p-4 w-full overflow-scroll resize-none text-sm"/>
+          <textarea
+            :value="data[currentSentenceId.value].strings[tasks[selectedTaskId.value].output_index].string == '_' ? '' : data[currentSentenceId.value].strings[tasks[selectedTaskId.value].output_index].string"
+            @keydown.stop="" @input="event => setString(event)" placeholder="..."
+            class="bg-gray-100 rounded-md outline-none p-4 w-full overflow-scroll resize-none text-sm" />
         </div>
 
       </div>
     </div>
-    
+
   </div>
 </template>
 
@@ -44,6 +49,4 @@ export default {
 }
 </script>
 
-<style>
-/* Your component styles here */
-</style>
+<style>/* Your component styles here */</style>

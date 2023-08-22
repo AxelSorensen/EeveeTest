@@ -11,14 +11,14 @@
       </div>
       <div class="flex items-center gap-4 justify-between select-none">
         <div
-          :class="{ 'text-gray-500 hover:text-gray-700': currentSentenceId.value > 0, 'text-gray-300 pointer-events-none': currentSentenceId == 0 }"
-          class="cursor-pointer group p-2 m-[-8px]" @click="currentSentenceId.value--">
-          <font-awesome-icon icon="fa-solid fa-chevron-left" />
+          :class="{ 'text-gray-500 hover:text-gray-700': currentSentenceId.value > 0, 'text-gray-300 pointer-events-none': currentSentenceId.value == 0 }"
+          class="cursor-pointer group p-2 m-[-8px]" @click="$emit('prevSentence')">
+          <font-awesome-icon icon="fa-solid fa-chevron-left" class="" />
         </div>
         <p class="flex">{{ currentSentenceId.value + 1 }} / {{ data.length }}</p>
         <div class="cursor-pointer group p-2 m-[-8px]"
           :class="{ 'text-gray-500 hover:text-gray-700': currentSentenceId.value < data.length, 'text-gray-300 pointer-events-none': currentSentenceId.value == data.length }"
-          @click="currentSentenceId.value++">
+          @click="$emit('nextSentence')">
           <font-awesome-icon icon="fa-solid fa-chevron-right" />
         </div>
       </div>
