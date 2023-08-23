@@ -125,7 +125,7 @@ export default {
     </div>
     <div class="text-sm text-center flex justify-center items-center h-full text-gray-500" v-else>
       <div>
-        <p>There are currently no tasks to display<br>Add new task in the left panel</p>
+        <p class="">There are currently no tasks to display<br>Add new task in the left panel</p>
       </div>
     </div>
   </div>

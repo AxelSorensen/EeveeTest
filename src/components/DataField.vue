@@ -1,9 +1,11 @@
 <template>
   <div class="bg-gray-200 w-[calc(100vw-250px)] flex flex-col gap-4">
-    <div v-if="data.length == 0" class="flex flex-col h-full justify-center items-center p-20 gap-8">
+    <div v-if="data.length == 0" class="flex flex-col h-full justify-center items-center p-20 gap-4">
+      <p class="text-sm mb-4 text-gray-600">There is currently no data imported</p>
       <div
         class="cursor-pointer w-full border-2 border-gray-400 text-gray-500 p-4 rounded-md border-dashed  hover:bg-gray-300 text-center"
         @click="$emit('readFile', 'conll')">Import Conll file</div>
+      <p class="text-xs text-gray-500 font-bold">- OR -</p>
       <div
         class="cursor-pointer w-full border-2 border-gray-400 text-gray-500 p-4 rounded-md border-dashed hover:bg-gray-300 text-center"
         @click="$emit('readFile', 'txt')">Import txt file (Sentences seperated by new line)</div>

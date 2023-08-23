@@ -8,10 +8,10 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 /* import specific icons */
-import { faArrowDown, faArrowLeft, faChevronLeft, faChevronRight, faComputerMouse, faDownload, faKeyboard, faPencil, faPencilSquare, faPlus, faTrashCan, faTriangleExclamation, faXmark } from '@fortawesome/free-solid-svg-icons'
+import { faArrowDown, faArrowLeft, faCheck, faChevronLeft, faChevronRight, faClock, faComputerMouse, faDownload, faFile, faGear, faKeyboard, faPencil, faPencilSquare, faPlus, faQuestion, faTrashCan, faTriangleExclamation, faXmark,  } from '@fortawesome/free-solid-svg-icons'
 
 /* add icons to the library */
-library.add(faTrashCan, faPlus, faPencil, faXmark, faTriangleExclamation, faChevronLeft, faChevronRight, faPencilSquare, faArrowDown, faArrowLeft, faDownload, faKeyboard, faComputerMouse)
+library.add(faTrashCan, faPlus, faPencil, faXmark, faTriangleExclamation, faChevronLeft, faChevronRight, faPencilSquare, faArrowDown, faArrowLeft, faDownload, faKeyboard, faComputerMouse, faCheck, faQuestion, faClock, faGear, faFile)
 
 const app = createApp(App)
 

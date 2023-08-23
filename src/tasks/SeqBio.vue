@@ -6,8 +6,7 @@
       <div class="flex gap-2 flex-wrap">
         <div class="rounded-md p-2 px-6 border border-white border-1 font-bold text-center relative"
           :class="index == selectedLabelId.value ? 'bg-white text-purple-500' : 'text-white hover:bg-purple-400 cursor-pointer'"
-          v-for="label, index in tasks[selectedTaskId.value]?.labels.slice(0, 9)"
-          @click="this.selectedLabelId.value = index">
+          v-for="label, index in tasks[selectedTaskId.value]?.labels.sort()" @click="this.selectedLabelId.value = index">
           <p class="absolute text-xs top-0 left-1 p-1">{{ index + 1 }}</p>
           {{ label }}
         </div>

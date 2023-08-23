@@ -141,8 +141,11 @@ export default {
               const strings = (sentence.match(/#[^\n]*/g)?.map(strings => {
                 return { name: strings.split('=')[0], string: strings.split('=')[1] }
               })) ?? [];
+              if (!strings.some(string => string.name == '# status')) {
+                strings.push({ name: '# status', string: '_' })
+              }
               const rows = sentence.split("\n")
-              const words = rows.slice(strings?.length ?? 0).map(row => {
+              const words = rows.slice(strings?.length - strings.filter(string => string.name == '# status').length ?? 0).map(row => {
                 const cols = row.split("\t");
                 return cols;
               });
@@ -156,6 +159,12 @@ export default {
       });
     }
   },
+  mounted() {
+    setInterval(() => {
+      this.time++
+    }, 1000);
+  },
+
   components: { Modal, SideBar, TaskField, DataField, Annotate, DataControls }
 }
 </script>
