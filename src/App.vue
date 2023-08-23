@@ -138,17 +138,18 @@ export default {
           } else {
             let data = reader.result.split(/(?=# sent_id)/);
             this.data = data.map(sentence => {
-              const strings = (sentence.match(/#[^\n]*/g)?.map(strings => {
-                return { name: strings.split('=')[0], string: strings.split('=')[1] }
+              const strings = (sentence.match(/#[^\n]*/g)?.map(string => {
+                return { name: string.split('=')[0].trim(), string: string.split('=')[1].trim() }
               })) ?? [];
-              if (!strings.some(string => string.name == '# status')) {
-                strings.push({ name: '# status', string: '_' })
-              }
               const rows = sentence.split("\n")
-              const words = rows.slice(strings?.length - strings.filter(string => string.name == '# status').length ?? 0).map(row => {
+
+              const words = rows.slice(strings?.length ?? 0).map(row => {
                 const cols = row.split("\t");
                 return cols;
               });
+              if (!strings.some(string => string.name == '# status')) {
+                strings.push({ name: '# status', string: '_' })
+              }
               return { strings: strings, words: words.slice(0, -2) };
             });
           }

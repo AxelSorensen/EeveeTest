@@ -84,9 +84,13 @@ export default {
       <div class="flex gap-2 flex-1">
         <p class="text-xs text-gray-400">Progress:</p>
         <div class="bg-gray-300 overflow-hidden rounded-full flex-1 h-4 flex">
+
           <div
             :class="index == currentSentenceId.value ? 'bg-white' : this.data[index].strings.find(string => string.name == '# status').string == 'accepted' ? 'bg-green-400' : this.data[index].strings.find(string => string.name == '# status').string == 'rejected' ? 'bg-red-400' : this.data[index].strings.find(string => string.name == '# status').string == 'unsure' ? 'bg-yellow-400' : null"
-            v-for="(item, index) in  data" class="flex-grow bg-gray-300"></div>
+            v-for="(item, index) in  data" class="flex-grow bg-gray-300">
+          </div>
+
+
         </div>
       </div>
 
