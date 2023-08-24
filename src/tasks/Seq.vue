@@ -39,14 +39,14 @@
           <p v-else class="text-center text-white font-bold text-xs">{{
             tasks[selectedTaskId.value]?.labels[selectedLabelId.value]
           }}</p>
-          {{ word[1] }}
+          {{ word[tasks[selectedTaskId.value].input_index] }}
         </span>
       </div>
     </div>
   </div>
   <div class="flex justify-center items-end  gap-1 flex-wrap px-8 ">
     <span v-for="word in data[currentSentenceId.value]?.words" class="select-none text-center">
-      {{ word[1] }}
+      {{ word[tasks[selectedTaskId.value].input_index] }}
     </span>
   </div>
 </template>

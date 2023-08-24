@@ -19,10 +19,22 @@ export default {
       page: { name: 'config' },
       selectedLabelId: { value: 0 },
       selectedWordId: { value: 0 },
-      taskTypes: [{ name: 'seq', isColumn: true }, { name: 'classification', isColumn: false }, { name: 'seq2seq', isColumn: false }, { name: 'seq_bio', isColumn: true }]
+      taskTypes: [{ name: 'seq', isWordLevel: true }, { name: 'classification', isWordLevel: false }, { name: 'seq2seq', isWordLevel: false }, { name: 'seq_bio', isWordLevel: true }]
     };
   },
   methods: {
+    async loadHFData() {
+      console.log('yo')
+      fetch('https://datasets-server.huggingface.co/rows?dataset=fka%2Fawesome-chatgpt-prompts&config=default&split=train&offset=0&limit=100').then(response => {
+        return response.text()
+      }).then(data => {
+        JSON.parse(data).rows.map(row => {
+          Object.values(row.row).map(column => {
+            console.log(column)
+          })
+        })
+      })
+    },
     nextSentence() {
       if (this.currentSentenceId.value < this.data.length) {
         this.currentSentenceId.value++
@@ -74,7 +86,7 @@ export default {
       ])));
     },
     addTask() {
-      this.tasks.push({ title: "Untitled task", type: this.taskTypes[0], output_index: null, labels: [] });
+      this.tasks.push({ title: "Untitled task", type: this.taskTypes[0], output_index: null, input_index: null, labels: [] });
       this.updateIDs();
       this.selectedTaskId.value = this.tasks.length - 1;
     },
@@ -84,7 +96,7 @@ export default {
       this.selectedTaskId.value = this.tasks.length - 1;
     },
     addLabel(text) {
-      this.tasks[this.selectedTaskId.value].labels.push(this.label.text);
+      this.tasks[this.selectedTaskId.value].labels.push(...this.label.text.split(','));
       this.label.text = "";
     },
     deleteLabel(label) {
@@ -136,21 +148,21 @@ export default {
 
 
           } else {
-            let data = reader.result.split(/(?=# sent_id)/);
+            let data = reader.result.split('\n\n')
             this.data = data.map(sentence => {
               const strings = (sentence.match(/#[^\n]*/g)?.map(string => {
                 return { name: string.split('=')[0].trim(), string: string.split('=')[1].trim() }
               })) ?? [];
               const rows = sentence.split("\n")
-
               const words = rows.slice(strings?.length ?? 0).map(row => {
                 const cols = row.split("\t");
+                console.log(cols)
                 return cols;
               });
               if (!strings.some(string => string.name == '# status')) {
                 strings.push({ name: '# status', string: '_' })
               }
-              return { strings: strings, words: words.slice(0, -2) };
+              return { strings: strings, words: words };
             });
           }
 
@@ -182,7 +194,7 @@ export default {
         @addColumn="addColumn" @nextSentence="nextSentence" @prevSentence="prevSentence" />
       <DataField ref="datafield" :data="data" :showStrings="showStrings" @readFile="readFile" @addRow="addRow"
         @addColumn="addColumn" :refs="$refs" @deleteColumn="deleteColumn" @deleteRow="deleteRow"
-        @updateRowName="updateRowName" :currentSentenceId="currentSentenceId" :tasks="tasks" />
+        @updateRowName="updateRowName" :currentSentenceId="currentSentenceId" :tasks="tasks" @loadHFData="loadHFData" />
     </div>
     <div v-else>
       <Annotate :selectedWordId="selectedWordId" :page="page" :data="data" :tasks="tasks" :selectedTaskId="selectedTaskId"

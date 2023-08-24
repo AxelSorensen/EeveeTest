@@ -28,8 +28,8 @@
             </div>
           </span>
           <span :id="index"
-            :class="tasks[selectedTaskId.value]?.labels.includes((word[tasks[selectedTaskId.value].output_index]).slice(2)) ? 'bg-yellow-400 p-1 mx-[-4px] text-black hover' : null, index == selectedWordId.value && !tasks[selectedTaskId.value]?.labels.includes(word[tasks[selectedTaskId.value].output_index]) && keyboardMode ? 'bg-gray-300' : '', index == selectedWordId.value && tasks[selectedTaskId.value]?.labels.includes(word[tasks[selectedTaskId.value].output_index]) && keyboardMode ? 'bg-purple-400' : ''">{{
-              word[1] }}</span>
+            :class="tasks[selectedTaskId.value]?.labels.includes((word[tasks[selectedTaskId.value].output_index]).slice(2)) ? 'bg-yellow-400 p-1 mx-[-4px] text-black hover' : null, index == selectedWordId.value && !tasks[selectedTaskId.value]?.labels.includes(word[tasks[selectedTaskId.value].output_index]) && keyboardMode ? 'bg-gray-300' : '', index == selectedWordId.value && tasks[selectedTaskId.value]?.labels.includes(word[tasks[selectedTaskId.value].output_index]) && keyboardMode ? 'bg-purple-400' : ''">
+            {{ word[tasks[selectedTaskId.value].input_index] }}</span>
           <span
             v-if="word[tasks[selectedTaskId.value].output_index][0] == 'I' && data[currentSentenceId.value]?.words[index + 1]?.[tasks[selectedTaskId.value].output_index][0] != 'I' || word[tasks[selectedTaskId.value].output_index][0] == 'B' && data[currentSentenceId.value]?.words[index + 1]?.[tasks[selectedTaskId.value].output_index][0] != 'I'"
             class="text-xs text-white font-semibold bg-yellow-400">

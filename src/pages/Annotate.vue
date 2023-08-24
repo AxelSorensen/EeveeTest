@@ -52,8 +52,8 @@ export default {
 
       if (0 < parseInt(event.key) && parseInt(event.key) < this.tasks[this.selectedTaskId.value]?.labels.length + 1) {
         this.selectedLabelId.value = event.key - 1;
-        if (!this.tasks[this.selectedTaskId.value].type.isColumn) {
-          this.data[this.currentSentenceId.value].strings[this.tasks[this.selectedTaskId.value].output_index].string = this.tasks[this.selectedTaskId.value].labels[event.key - 1]
+        if (!this.tasks[this.selectedTaskId.value].type.isWordLevel) {
+          this.data[this.currentSentenceId.value].strings.find(string => string.name == this.tasks[this.selectedTaskId.value].output_index).string = this.tasks[this.selectedTaskId.value].labels[event.key - 1]
         }
       }
 

@@ -64,14 +64,27 @@ export default {
           </div>
         </div>
         <div class="flex gap-16 justify-center">
+          <div class="flex flex-col py-4">
+            <label class="text-center text-sm font-semibold text-gray-500 mb-2" for="">Input</label>
+            <div class="flex gap-2 text-sm justify-evenly w-full">
+              <div class="flex gap-2 items-center relative">
+                <label>Column index:</label>
+                <input v-model="tasks[selectedTaskId.value].input_index"
+                  class="bg-gray-100 outline-none w-10 p-2 rounded-sm text-center" type="text" placeholder="0">
+              </div>
 
+            </div>
+          </div>
           <div class="flex flex-col py-4">
             <label class="text-center text-sm font-semibold text-gray-500 mb-2" for="">Output</label>
             <div class="flex gap-2 text-sm justify-evenly w-full">
               <div class="flex gap-2 items-center relative">
-                <label>{{ this.tasks[selectedTaskId.value].type.isColumn ? 'Column index:' : 'Row index:' }}</label>
-                <input v-model="tasks[selectedTaskId.value].output_index"
+                <label>{{ this.tasks[selectedTaskId.value].type.isWordLevel ? 'Column index:' : 'Name:' }}</label>
+                <input v-if="this.tasks[selectedTaskId.value].type.isWordLevel"
+                  v-model="tasks[selectedTaskId.value].output_index"
                   class="bg-gray-100 outline-none w-10 p-2 rounded-sm text-center" type="text" placeholder="0">
+                <input v-else v-model="tasks[selectedTaskId.value].output_index"
+                  class="bg-gray-100 outline-none w-24 p-2 rounded-sm" type="text" placeholder="# something">
 
               </div>
 
@@ -97,7 +110,7 @@ export default {
           <label class="text-center text-sm font-semibold text-gray-500 mb-2" for="">Labels</label>
           <div class="flex items-center gap-4">
             <input v-model="label.text" class="bg-gray-100 outline-none w-full rounded-sm p-2 text-sm"
-              @keydown.enter="$emit('addLabel')" placeholder="Press Enter to add label" type="text">
+              @keydown.enter="$emit('addLabel')" placeholder="Comma separated labels (Press ENTER to add)" type="text">
             <div class="flex gap-2">
               <div @click="tasks[selectedTaskId.value].labels.push(...uniqueLabels)"
                 :class="{ 'opacity-50 pointer-events-none': uniqueLabels.length == 0 }"
@@ -112,7 +125,7 @@ export default {
           <div class="flex gap-2 mt-4 flex-wrap overflow-scroll w-full max-h-28">
             <div v-if="tasks[selectedTaskId.value].labels.length > 0"
               class="group text-white bg-purple-500 text-sm p-1 px-2 rounded-md h-7 hover:bg-purple-600 cursor-pointer whitespace-nowrap"
-              @click="$emit('deleteLabel', label)" v-for="label in tasks[selectedTaskId.value].labels.slice().reverse()">
+              @click="$emit('deleteLabel', label)" v-for="label in tasks[selectedTaskId.value].labels">
               {{ label
               }}<font-awesome-icon class="text-purple-800 ml-2 group-hover:text-purple-300" icon="fa-solid fa-xmark" />
             </div>
@@ -125,7 +138,7 @@ export default {
     </div>
     <div class="text-sm text-center flex justify-center items-center h-full text-gray-500" v-else>
       <div>
-        <p class="">There are currently no tasks to display<br>Add new task in the left panel</p>
+        <p class="">There are currently no tasks<br>Add new task or import a task file in the left panel</p>
       </div>
     </div>
   </div>
