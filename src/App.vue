@@ -25,6 +25,7 @@ export default {
       selectedWordId: { value: 0 },
       taskTypes: [{ name: 'seq', isWordLevel: true }, { name: 'class', isWordLevel: false }, { name: 'seq2seq', isWordLevel: false }, { name: 'seq_bio', isWordLevel: true }],
       searchingSentence: { value: false },
+      fileName: { value: null },
     };
   },
   methods: {
@@ -32,13 +33,13 @@ export default {
       this.data = []
     },
     async loadHFData() {
-      console.log('yo')
+
       fetch('https://datasets-server.huggingface.co/rows?dataset=fka%2Fawesome-chatgpt-prompts&config=default&split=train&offset=0&limit=100').then(response => {
         return response.text()
       }).then(data => {
         JSON.parse(data).rows.map(row => {
           Object.values(row.row).map(column => {
-            console.log(column)
+
           })
         })
       })
@@ -149,7 +150,8 @@ export default {
           return row.join('\t');
         }).join('\n')].join('\n'))
       });
-      this.$refs.myModal.createModal('Export annotation file', `What would you like to name the file?`, [{ text: 'Cancel', action: () => this.$refs.myModal.modal.isOpen = false }, { text: 'Save file', action: () => { this.download(file, this.$refs.myModal.modal.input_text + '.conllu', 'conllu'); this.$refs.myModal.modal.isOpen = false }, color: 'bg-purple-500 hover:bg-purple-600' }], true, 'conllu')
+
+      this.$refs.myModal.createModal('Export annotation file', `What would you like to name the file?`, [{ text: 'Cancel', action: () => this.$refs.myModal.modal.isOpen = false }, { text: 'Save file', action: () => { this.download(file.join('\n\n'), this.fileName.value + this.$refs.myModal.modal.time + '.conllu', 'conllu'); this.$refs.myModal.modal.isOpen = false }, color: 'bg-purple-500 hover:bg-purple-600' }], true, 'conllu')
 
 
     },
@@ -204,11 +206,10 @@ export default {
               alert('Could not import the selected file. Make sure the txt file contains one sentence per line with no spaces between lines')
             }
 
-
-
           } else {
             try {
               let data = reader.result.split('\n\n')
+
               this.data = data.map(sentence => {
                 const strings = (sentence.match(/#[^\n]*/g)?.map(string => {
                   return { name: string.split('=')[0].trim(), string: string.split('=')[1].trim() }
@@ -233,6 +234,7 @@ export default {
 
         });
         this.dataName = e.target.files[0].name
+        this.fileName.value = e.target.files[0].name.split('.')[0]
         reader.readAsText(e.target.files[0]);
       });
     },
@@ -285,11 +287,12 @@ export default {
     <FrontPage :page="page" />
   </div>
   <div v-else>
-    <Modal ref="myModal" :dataName="dataName" />
+    <Modal ref="myModal" :dataName="dataName" :fileName="fileName" />
     <div class="w-full h-[100vh] bg-white grid grid-cols-[250px,1fr] grid-rows-1 overflow-hidden">
       <SideBar :tasks="tasks" :selectedLabelId="selectedLabelId" :selectedTaskId="selectedTaskId" @addTask="addTask"
         @exportTaskFile="exportTaskFile" @deleteTask="deleteTask" @exportFile="exportFile"
-        @importTaskFile="importTaskFile" :data="data" :page="page" :pages="pages" :tasksAreFilled="tasksAreFilled" />
+        @importTaskFile="importTaskFile" :data="data" :page="page" :pages="pages" :tasksAreFilled="tasksAreFilled"
+        :fileName="fileName" />
       <div v-if="page.name == 'config'" class="grid grid-rows-[1fr,60px,minmax(0,.5fr)]">
         <TaskField ref="taskfield" :tasks="tasks" :selectedTaskId="selectedTaskId" @addLabel="addLabel" :label="label"
           @deleteLabel="deleteLabel" :data="data" :taskTypes="taskTypes" @importLabels="importLabels"

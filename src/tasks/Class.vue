@@ -153,12 +153,6 @@ export default {
 
     }
   },
-  watch: {
-    // whenever question changes, this function will run
-    currentSentenceId(new_val, old_val) {
-      console.log(new_val.value)
-    }
-  },
   created() {
     window.addEventListener("keydown", this.handleKeyDown);
     window.addEventListener("click", this.clickAway);

@@ -3,13 +3,15 @@ export default {
   data() {
     return {
       modal: { isOpen: false, primaryText: null, secondaryText: null, buttons: [], input: null },
+      appendDate: false,
     }
   },
   props: {
-    dataName: String
+    dataName: String,
+    fileName: Object,
   },
   methods: {
-    addDate(event) {
+    addDate() {
       if (this.appendDate) {
         const date = new Date()
 
@@ -18,10 +20,10 @@ export default {
         dateString += '-'
         dateString += date.toLocaleTimeString();
         dateString += ')'
-        this.modal.input_text = this.dataName.split('.')[0] + dateString
+        this.modal.time = dateString
         return dateString
       } else {
-        this.modal.input_text = this.dataName.split('.')[0]
+        this.modal.time = ''
         return ''
       }
 
@@ -32,8 +34,9 @@ export default {
       this.modal.buttons = buttons;
       this.modal.isOpen = true;
       this.modal.input = input
-      this.modal.input_text = this.dataName.split('.')[0] + this.addDate()
+      this.modal.input_text = this.fileName.value
       this.modal.filetype = filetype
+      this.modal.time = this.appendDate ? this.addDate() : ''
     },
   },
 
@@ -42,6 +45,7 @@ export default {
 </script>
 
 <template>
+  {{ fileName.value }}
   <div v-if="modal.isOpen" class="w-full flex justify-center items-center h-screen absolute bg-black bg-opacity-20 z-[1]">
     <div class="bg-white w-fit min-w-[40%] rounded-md z-[2]">
       <div class="gap-2 p-4 flex flex-col">
@@ -49,8 +53,10 @@ export default {
         <p class="text-sm text-gray-500">{{ modal.secondaryText }}</p>
       </div>
       <div v-if="modal.input" class="p-4 pt-0 w-full flex items-center gap-2">
-        <input v-model="modal.input_text" class="bg-gray-100 outline-none p-2 rounded-sm w-full truncate" type="text"
+        <input v-model="fileName.value" class="bg-gray-100 outline-none p-2 rounded-sm w-full truncate" type="text"
           placeholder="File name">
+        <div v-if="appendDate" class="pointer-events-none p-2 rounded-sm whitespace-nowrap text-gray-500">{{ addDate() }}
+        </div>
         <p class="text-gray-500">.{{ modal.filetype }}</p>
 
       </div>

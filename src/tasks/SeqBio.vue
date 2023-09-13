@@ -169,7 +169,7 @@ export default {
       while (this.data[this.currentSentenceId.value].words[this.end + 1]?.[this.tasks[this.selectedTaskId.value].output_index][0] != 'O' && this.data[this.currentSentenceId.value].words?.[this.end + 1]?.[this.tasks[this.selectedTaskId.value]?.output_index][0] != 'B' && this.end < this.data[this.currentSentenceId.value].words.length - 1) {
         this.end++;
       }
-      console.log(this.start, this.end)
+
       if (!this.searchMode) {
         this.setBioLabel(Math.min(this.start, this.end), Math.max(this.start, this.end), this.currentSentenceId, this.tasks[this.selectedTaskId.value].labels[this.selectedLabelId.value])
       } else {
