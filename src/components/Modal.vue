@@ -45,7 +45,6 @@ export default {
 </script>
 
 <template>
-  {{ fileName.value }}
   <div v-if="modal.isOpen" class="w-full flex justify-center items-center h-screen absolute bg-black bg-opacity-20 z-[1]">
     <div class="bg-white w-fit min-w-[40%] rounded-md z-[2]">
       <div class="gap-2 p-4 flex flex-col">
