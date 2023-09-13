@@ -5,24 +5,32 @@ import SideBar from './components/SideBar.vue';
 import TaskField from './components/TaskField.vue';
 import Annotate from './pages/Annotate.vue';
 import DataControls from './components/DataControls.vue';
+import FrontPage from './pages/FrontPage.vue';
+import { isObjectMatchingStructure } from './Helpers';
 
 export default {
 
   data() {
     return {
+      pages: ['front', 'config', 'annotate'],
       tasks: [],
       data: [],
+      dataName: null,
       selectedTaskId: { value: 0 },
       showStrings: { value: false },
       currentSentenceId: { value: 0 },
       label: { text: "" },
-      page: { name: 'config' },
+      page: { name: 'front' },
       selectedLabelId: { value: 0 },
       selectedWordId: { value: 0 },
-      taskTypes: [{ name: 'seq', isWordLevel: true }, { name: 'classification', isWordLevel: false }, { name: 'seq2seq', isWordLevel: false }, { name: 'seq_bio', isWordLevel: true }]
+      taskTypes: [{ name: 'seq', isWordLevel: true }, { name: 'class', isWordLevel: false }, { name: 'seq2seq', isWordLevel: false }, { name: 'seq_bio', isWordLevel: true }],
+      searchingSentence: { value: false },
     };
   },
   methods: {
+    clearData() {
+      this.data = []
+    },
     async loadHFData() {
       console.log('yo')
       fetch('https://datasets-server.huggingface.co/rows?dataset=fka%2Fawesome-chatgpt-prompts&config=default&split=train&offset=0&limit=100').then(response => {
@@ -36,7 +44,7 @@ export default {
       })
     },
     nextSentence() {
-      if (this.currentSentenceId.value < this.data.length) {
+      if (this.currentSentenceId.value < this.data.length - 2) {
         this.currentSentenceId.value++
         this.selectedWordId.value = 0
       }
@@ -47,6 +55,21 @@ export default {
         this.currentSentenceId.value--
         this.selectedWordId.value = 0
       }
+    },
+    searchSentence(e) {
+      if (!Number.isInteger(parseInt(e.target.value))) {
+        this.searchingSentence.value = false
+        return
+      }
+      if (parseInt(e.target.value) > this.data.length) {
+        this.currentSentenceId.value = this.data.length - 2
+      } else if (parseInt(e.target.value) < 1) {
+        this.currentSentenceId.value = 0
+      }
+      else {
+        this.currentSentenceId.value = parseInt(e.target.value) - 1
+      }
+      this.searchingSentence.value = false
     },
     updateIDs() {
       this.tasks.map((item, index) => {
@@ -59,20 +82,26 @@ export default {
       ])));
       this.$nextTick(() => (this.$refs.datafield.$refs.scrollToMe.scrollLeft = this.$refs.datafield.$refs.scrollToMe.scrollWidth));
     },
-    addRow() {
-      this.data.map(data => {
+    async addRow() {
+      await this.data.map(data => {
         data.strings.push({ name: '_', string: '_' });
+
       });
 
-      this.newRowIndex = this.data[0].strings.length - 1
-      this.$nextTick(() => (this.$refs.datafield.$refs.scrollToMe.scrollTop = this.$refs.datafield.$refs.scrollToMe.scrollHeight));
+
+      this.$nextTick(() => {
+        this.$refs.datafield.$refs.scrollToMe.scrollTop = this.$refs.datafield.$refs.scrollToMe.scrollHeight
+        this.$refs.datafield.$refs.input[this.$refs.datafield.$refs.input.length - 1].select()
+      });
 
     },
-    updateRowName(name) {
+    updateRowName(args) {
       this.data.map(data => {
-        data.strings[this.newRowIndex].name = name
+        if (data.strings?.[args[0]]?.name) {
+          data.strings[args[0]].name = args[1]
+        }
+
       });
-      this.newRowIndex = null
 
     },
     deleteRow(index) {
@@ -95,8 +124,14 @@ export default {
       this.updateIDs();
       this.selectedTaskId.value = this.tasks.length - 1;
     },
-    addLabel(text) {
-      this.tasks[this.selectedTaskId.value].labels.push(...this.label.text.split(','));
+    addLabel() {
+      if (this.label.text == "") {
+        alert('No labels added. Type in the desired labels to the left of the button')
+        return;
+      }
+      this.tasks[this.selectedTaskId.value].labels.push(...this.label.text.split(',').filter(label => {
+        return label != ''
+      }));
       this.label.text = "";
     },
     deleteLabel(label) {
@@ -104,7 +139,7 @@ export default {
         return item !== label;
       });
     },
-    saveFile() {
+    exportFile() {
       let file = [];
       this.data.flatMap(data => {
         let strings = data.strings.map(string => {
@@ -114,15 +149,31 @@ export default {
           return row.join('\t');
         }).join('\n')].join('\n'))
       });
-      let filename = `test.conll`;
-      let element = document.createElement('a');
-      element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(file.join('\n\n')));
-      element.setAttribute('download', filename);
-      element.style.display = 'none';
+      this.$refs.myModal.createModal('Export annotation file', `What would you like to name the file?`, [{ text: 'Cancel', action: () => this.$refs.myModal.modal.isOpen = false }, { text: 'Save file', action: () => { this.download(file, this.$refs.myModal.modal.input_text + '.conllu', 'conllu'); this.$refs.myModal.modal.isOpen = false }, color: 'bg-purple-500 hover:bg-purple-600' }], true, 'conllu')
+
+
+    },
+    async importTaskFile() {
+      let element = document.createElement("input");
+      element.setAttribute("type", "file");
+      element.setAttribute("accept", ".json");
+      element.style.display = "none";
+      element.multiple = true;
       document.body.appendChild(element);
       element.click();
-      document.body.removeChild(element);
-
+      element.addEventListener("change", async (e) => {
+        let reader = new FileReader();
+        reader.addEventListener("loadend", () => {
+          let result = JSON.parse(reader.result)
+          if (isObjectMatchingStructure(result[0])) {
+            this.tasks = result
+            this.selectedTaskId.value = 0
+          } else {
+            alert('The chosen file does not follow the correct structure of a task file.')
+          }
+        });
+        reader.readAsText(e.target.files[0]);
+      });
     },
 
     async readFile(type) {
@@ -136,41 +187,88 @@ export default {
         let reader = new FileReader();
         reader.addEventListener("loadend", () => {
           if (type == 'txt') {
-            let data = reader.result.split("\n")
-            this.data = data.map((sentence, index) => {
-              const words = sentence.match(/\w+|[^\w\s]|(?<=\w\s+)\s/g).map((word, index) => {
-                return [index + 1, word]
+            try {
+              let data = reader.result.split("\n")
+              this.data = data.map((sentence, index) => {
+                const words = sentence.match(/\w+|[^\w\s]+/g).map((word, index) => {
+                  return [index + 1, word]
 
-              });
-              const strings = [{ name: '# sent_id', string: index }, { name: '# text', string: sentence }]
-              return { strings: strings, words: words };
-            })
+                });
+                const strings = [{ name: '# sent_id', string: index }, { name: '# text', string: sentence }]
+                if (!strings.some(string => string.name == '# status')) {
+                  strings.push({ name: '# status', string: '_' })
+                }
+                return { strings: strings, words: words };
+              })
+            } catch (error) {
+              alert('Could not import the selected file. Make sure the txt file contains one sentence per line with no spaces between lines')
+            }
+
 
 
           } else {
-            let data = reader.result.split('\n\n')
-            this.data = data.map(sentence => {
-              const strings = (sentence.match(/#[^\n]*/g)?.map(string => {
-                return { name: string.split('=')[0].trim(), string: string.split('=')[1].trim() }
-              })) ?? [];
-              const rows = sentence.split("\n")
-              const words = rows.slice(strings?.length ?? 0).map(row => {
-                const cols = row.split("\t");
-                console.log(cols)
-                return cols;
+            try {
+              let data = reader.result.split('\n\n')
+              this.data = data.map(sentence => {
+                const strings = (sentence.match(/#[^\n]*/g)?.map(string => {
+                  return { name: string.split('=')[0].trim(), string: string.split('=')[1].trim() }
+                })) ?? [];
+                const rows = sentence.split("\n")
+                const words = rows.slice(strings?.length ?? 0).map(row => {
+                  const cols = row.split("\t");
+
+                  return cols;
+                });
+                if (!strings.some(string => string.name == '# status')) {
+                  strings.push({ name: '# status', string: '_' })
+                }
+                return { strings: strings, words: words };
               });
-              if (!strings.some(string => string.name == '# status')) {
-                strings.push({ name: '# status', string: '_' })
-              }
-              return { strings: strings, words: words };
-            });
+            } catch (error) {
+              alert('Could not import the selected file. Make sure that the content aligns with the .conll format.')
+            }
+
           }
 
 
         });
+        this.dataName = e.target.files[0].name
         reader.readAsText(e.target.files[0]);
       });
-    }
+    },
+    async download(content, fileName, contentType) {
+      var a = document.createElement("a");
+      var file = new Blob([content], { type: contentType });
+      a.href = URL.createObjectURL(file);
+      a.download = fileName;
+      a.click();
+    },
+    exportTaskFile() {
+      let file = JSON.stringify(this.tasks)
+      this.$refs.myModal.createModal('Export task file', `What would you like to name the file?`, [{ text: 'Cancel', action: () => this.$refs.myModal.modal.isOpen = false }, { text: 'Save file', action: () => { this.download(file, this.$refs.myModal.modal.input_text + '.json', 'json'); this.$refs.myModal.modal.isOpen = false }, color: 'bg-purple-500 hover:bg-purple-600' }], true, 'json')
+
+
+    },
+  },
+  computed: {
+    tasksAreFilled() {
+      return this.tasks.every(task => {
+        if (task.type.isWordLevel) {
+          return (task.output_index < this.data[0]?.words[0]?.length - 1 && task.output_index > 0 && task.input_index < this.data[0]?.words[0]?.length - 1 && task.input_index > 0 && task.labels.length > 0)
+        } else if (task.type.name == 'seq2seq') {
+          return (this.data[0]?.strings.some(string => string.name === task.output_index) && task.input_index < this.data[0]?.words[0]?.length - 1 && task.input_index > 0)
+        } else {
+          return (this.data[0]?.strings.some(string => string.name === task.output_index) && task.input_index < this.data[0]?.words[0]?.length - 1 && task.input_index > 0 && task.labels.length > 0)
+        }
+
+      })
+    },
+  },
+  created() {
+    window.addEventListener("beforeunload", function (e) {
+      e.preventDefault();
+      e.returnValue = "";
+    });
   },
   mounted() {
     setInterval(() => {
@@ -178,28 +276,39 @@ export default {
     }, 1000);
   },
 
-  components: { Modal, SideBar, TaskField, DataField, Annotate, DataControls }
+  components: { Modal, SideBar, TaskField, DataField, Annotate, DataControls, FrontPage }
 }
 </script>
 
 <template>
-  <Modal ref="myModal" />
-  <div class="w-full h-[100vh] bg-white grid grid-cols-[250px,1fr] grid-rows-1 overflow-hidden">
-    <SideBar :tasks="tasks" :selectedTaskId="selectedTaskId" @addTask="addTask" @deleteTask="deleteTask"
-      @saveFile="saveFile" :data="data" :page="page" />
-    <div v-if="page.name == 'config'" class="grid grid-rows-[1fr,60px,minmax(0,1fr)]">
-      <TaskField ref="taskfield" :tasks="tasks" :selectedTaskId="selectedTaskId" @addLabel="addLabel" :label="label"
-        @deleteLabel="deleteLabel" :data="data" :taskTypes="taskTypes" @importLabels="importLabels" />
-      <DataControls :data="data" :showStrings="showStrings" :currentSentenceId="currentSentenceId" @addRow="addRow"
-        @addColumn="addColumn" @nextSentence="nextSentence" @prevSentence="prevSentence" />
-      <DataField ref="datafield" :data="data" :showStrings="showStrings" @readFile="readFile" @addRow="addRow"
-        @addColumn="addColumn" :refs="$refs" @deleteColumn="deleteColumn" @deleteRow="deleteRow"
-        @updateRowName="updateRowName" :currentSentenceId="currentSentenceId" :tasks="tasks" @loadHFData="loadHFData" />
-    </div>
-    <div v-else>
-      <Annotate :selectedWordId="selectedWordId" :page="page" :data="data" :tasks="tasks" :selectedTaskId="selectedTaskId"
-        @setLabel="setLabel" :selectedLabelId="selectedLabelId" @nextSentence="nextSentence" @prevSentence="prevSentence"
-        :currentSentenceId="currentSentenceId" @nextTask="nextTask" @prevTask="prevTask" />
+  <div v-if="page.name == 'front'">
+    <FrontPage :page="page" />
+  </div>
+  <div v-else>
+    <Modal ref="myModal" :dataName="dataName" />
+    <div class="w-full h-[100vh] bg-white grid grid-cols-[250px,1fr] grid-rows-1 overflow-hidden">
+      <SideBar :tasks="tasks" :selectedLabelId="selectedLabelId" :selectedTaskId="selectedTaskId" @addTask="addTask"
+        @exportTaskFile="exportTaskFile" @deleteTask="deleteTask" @exportFile="exportFile"
+        @importTaskFile="importTaskFile" :data="data" :page="page" :pages="pages" :tasksAreFilled="tasksAreFilled" />
+      <div v-if="page.name == 'config'" class="grid grid-rows-[1fr,60px,minmax(0,.5fr)]">
+        <TaskField ref="taskfield" :tasks="tasks" :selectedTaskId="selectedTaskId" @addLabel="addLabel" :label="label"
+          @deleteLabel="deleteLabel" :data="data" :taskTypes="taskTypes" @importLabels="importLabels"
+          :showStrings="showStrings" />
+        <DataControls :data="data" :searchingSentence="searchingSentence" :showStrings="showStrings"
+          :currentSentenceId="currentSentenceId" @addRow="addRow" @addColumn="addColumn" @nextSentence="nextSentence"
+          @prevSentence="prevSentence" @searchSentence="searchSentence" />
+
+        <DataField ref="datafield" :data="data" @clearData="clearData" :showStrings="showStrings" @readFile="readFile"
+          @addRow="addRow" @addColumn="addColumn" :refs="$refs" @deleteColumn="deleteColumn" @deleteRow="deleteRow"
+          @updateRowName="updateRowName" :currentSentenceId="currentSentenceId" :tasks="tasks" @loadHFData="loadHFData"
+          :dataName="dataName" />
+      </div>
+      <div v-if="page.name == 'annotate'">
+        <Annotate :selectedWordId="selectedWordId" :searchingSentence="searchingSentence" :page="page" :data="data"
+          :tasks="tasks" :selectedTaskId="selectedTaskId" @setLabel="setLabel" :selectedLabelId="selectedLabelId"
+          @nextSentence="nextSentence" @prevSentence="prevSentence" :currentSentenceId="currentSentenceId"
+          @nextTask="nextTask" @prevTask="prevTask" @searchSentence="searchSentence" />
+      </div>
     </div>
   </div>
 </template>

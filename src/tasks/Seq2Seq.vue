@@ -13,7 +13,7 @@
       <div class="flex gap-4 w-full p-4">
 
         <div class="w-full">
-          <textarea
+          <textarea @keydown.tab="e => { e.preventDefault(); e.target.blur() }" ref="input"
             :value="data[currentSentenceId.value].strings.find(string => string.name == tasks[selectedTaskId.value].output_index).string == '_' ? '' : data[currentSentenceId.value].strings.find(string => string.name == tasks[selectedTaskId.value].output_index).string"
             @keydown.stop="" @input="event => setString(event)" placeholder="..."
             class="bg-gray-100 rounded-md outline-none p-4 w-full overflow-scroll resize-none text-sm" />
@@ -37,8 +37,23 @@ export default {
   methods: {
     setString(event) {
       this.data[this.currentSentenceId.value].strings.find(string => string.name == this.tasks[this.selectedTaskId.value].output_index).string = event.target.value
+    },
+    handleKeyDown(event) {
+
+      if (event.keyCode == 9) {
+        event.preventDefault();
+
+        this.$refs.input.focus()
+      }
+
     }
-  }
+  },
+  created() {
+    window.addEventListener("keydown", this.handleKeyDown);
+  },
+  beforeUnmount() {
+    window.removeEventListener("keydown", this.handleKeyDown);
+  },
 }
 </script>
 

@@ -1,53 +1,89 @@
 
 
 <template>
-  <div class="grid grid-rows-[fit-content1new,1fr] rounded-md mx-auto w-[calc(100vw-250px-64px)]">
-    <div class="bg-purple-500 flex justify-between p-2 rounded-t-md">
+  <div v-if="searchBarOpen.value" class=" bg-white z-[1] rounded-md absolute shadow-lg p-4 pb-0" ref="search"
+    :style="{ top: position.y + 'px', left: position.x + 'px' }">
+    <div class="flex justify-between items-center">
+
+      <p class="text-gray-400 text-xs mb-2" for="">Select a label</p>
+      <div class="flex gap-2 items-center">
+        <p @click="searchContains = false; $refs.search_input.focus()"
+          :class="!searchContains ? 'bg-purple-400 text-white' : 'hover:bg-gray-100'"
+          class="text-gray-400 cursor-pointer  text-xs mb-2 p-1 rounded-md" for="">..a
+        </p>
+        <p @click="searchContains = true; $refs.search_input.focus()"
+          :class="searchContains ? 'bg-purple-400 text-white' : 'hover:bg-gray-100'"
+          class="text-gray-400 cursor-pointer text-xs mb-2 p-1 rounded-md" for="">..a..
+        </p>
+      </div>
+    </div>
+    <input @input="listIndex.value = 0" ref="search_input" v-model="search" type="text"
+      class="w-[87%] outline-none border-b-2 border-purple-500 h-10 mb-4">
+    <div class="divide-y flex flex-col h-32 overflow-scroll w-full">
+      <div @mouseover="listIndex.value = index" v-for="label, index in  filteredLabels "
+        class="flex justify-between items-center text-sm p-2 w-[90%] cursor-pointer" @click="addLabel" :ref="index"
+        :class="index == listIndex.value ? 'bg-gray-100 font-bold' : null">
+        <div class="bg-purple-100 text-xs w-6 rounded-full flex justify-center items-center h-6">{{ label[0].toLowerCase()
+        }}
+        </div>
+        {{
+          label }}
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-rows-[fit-content] rounded-md mx-auto w-[calc(100vw-250px-64px)]">
+    <div class="bg-purple-500 flex justify-between p-2 rounded-t-md min-h-[40px]">
       <div class="flex gap-2 flex-wrap">
-        <div class="rounded-md p-2 px-6 border border-white border-1 font-bold text-center relative select-none"
+        <div v-if="!searchMode" class="rounded-md p-2 px-6 border border-white border-1 font-bold text-center relative"
           :class="index == selectedLabelId.value ? 'bg-white text-purple-500' : 'text-white hover:bg-purple-400 cursor-pointer'"
-          v-for="label, index in tasks[selectedTaskId.value]?.labels.sort()" @click="this.selectedLabelId.value = index">
+          v-for="   label, index  in  tasks[selectedTaskId.value]?.labels.sort()   "
+          @click="this.selectedLabelId.value = index">
           <p class="absolute text-xs top-0 left-1 p-1">{{ index + 1 }}</p>
           {{ label }}
         </div>
 
-
       </div>
-      <div class="items-center justify-center flex gap-2">
-        <div class="group cursor-pointer " @click="keyboardMode = true">
+      <div v-if="this.tasks[this.selectedTaskId.value]?.labels.length <= 9"
+        class="items-center justify-center flex gap-2">
+        <div class="group cursor-pointer " @click="searchMode = false">
           <font-awesome-icon class="mr-2 text-lg"
-            :class="keyboardMode ? 'text-purple-200' : 'group-hover:text-purple-400 text-purple-800'"
-            icon="fa-solid fa-keyboard" />
+            :class="!searchMode ? 'text-purple-200' : 'group-hover:text-purple-400 text-purple-800'"
+            icon="fa-solid fa-rectangle-list" />
         </div>
-        <div class="group cursor-pointer" @click="keyboardMode = false">
+        <div class="group cursor-pointer" @click="searchMode = true">
           <font-awesome-icon class="mr-2 text-lg"
-            :class="!keyboardMode ? 'text-purple-200' : 'group-hover:text-purple-400 text-purple-800'"
-            icon="fa-solid fa-mouse" />
+            :class="searchMode ? 'text-purple-200' : 'group-hover:text-purple-400 text-purple-800'"
+            icon="fa-solid fa-search" />
         </div>
       </div>
-
-
     </div>
-    <div class="justify-center items-center flex bg-white rounded-b-md">
-      <div v-if="data.length > 0" class="flex justify-center items-end  rounded-b-md gap-1 flex-wrap gap-y-4 m-8">
-        <span v-for="word, index in data[currentSentenceId.value]?.words"
-          class="cursor-pointer rounded-md select-none relative p-2 text-center min-w-[6ch]"
-          :class="tasks[selectedTaskId.value]?.labels.includes(word[tasks[selectedTaskId.value].output_index]) ? 'bg-yellow-400 text-white hover' : 'hover:bg-gray-300', index == selectedWordId.value && !tasks[selectedTaskId.value]?.labels.includes(word[tasks[selectedTaskId.value].output_index]) && keyboardMode ? 'bg-gray-300' : '', index == selectedWordId.value && tasks[selectedTaskId.value]?.labels.includes(word[tasks[selectedTaskId.value].output_index]) && keyboardMode ? 'bg-purple-400' : ''"
-          @click="setLabel(index, currentSentenceId, tasks[selectedTaskId.value]?.labels[selectedLabelId.value])">
-          <p v-if="tasks[selectedTaskId.value]?.labels.includes(word[tasks[selectedTaskId.value].output_index])"
-            class="text-center font-bold text-xs">{{ word[tasks[selectedTaskId.value]?.output_index] }}</p>
-          <p v-else class="text-center text-white font-bold text-xs">{{
-            tasks[selectedTaskId.value]?.labels[selectedLabelId.value]
-          }}</p>
-          {{ word[tasks[selectedTaskId.value].input_index] }}
+    <div @click.stop="" @mouseup.stop="mouseUp" class="justify-center items-center flex bg-white rounded-b-md ">
+      <div v-if="data.length > 0" class="flex justify-center items-center  rounded-b-md gap-2 flex-wrap gap-y-4 m-8">
+        <span @mousedown="spanClicked = true" v-for="   word, index    in    data[currentSentenceId.value]?.words   "
+          class="relative flex">
+          <span v-if="tasks[selectedTaskId.value]?.labels.includes((word[tasks[selectedTaskId.value].output_index]))">
+            <div @mouseup.stop="" @click.stop="deleteLabel(index)"
+              class="relative group cursor-pointer w-2 bg-yellow-200 h-full ml-2">
+              <font-awesome-icon icon="fa-solid fa-xmark"
+                class="text-gray-400 group-hover:bg-gray-300 flex w-2 h-2 p-1 left-[-8px] absolute top-[-8px] bg-gray-200 rounded-full" />
+            </div>
+          </span>
+          <span :id="index"
+            :name="tasks[selectedTaskId.value]?.labels.includes((word[tasks[selectedTaskId.value].output_index])) ? 'selected' : null"
+            :class="tasks[selectedTaskId.value]?.labels.includes((word[tasks[selectedTaskId.value].output_index])) ? 'bg-yellow-200 p-1 mx-[-4px]' : (word_index !== null && word_index == index) ? 'bg-yellow-400 bg-opacity-50 p-1 mx-[-4px] ' : null">
+            {{ word[tasks[selectedTaskId.value].input_index] }}</span>
+          <span v-if="tasks[selectedTaskId.value]?.labels.includes((word[tasks[selectedTaskId.value].output_index]))"
+            class="text-xs text-purple-800 font-semibold text-ellipsis bg-yellow-200">
+            <p @click="this.word_index = index; if (!searchMode) { setLabel(this.tasks[this.selectedTaskId.value].labels[this.selectedLabelId.value]) }"
+              class="p-2 truncate max-w-[20ch]">{{
+                word[tasks[selectedTaskId.value].output_index] }}
+            </p>
+          </span>
+
         </span>
       </div>
     </div>
-  </div>
-  <div class="flex justify-center items-end  gap-1 flex-wrap px-8 ">
-    <span v-for="word in data[currentSentenceId.value]?.words" class="select-none text-center">
-      {{ word[tasks[selectedTaskId.value].input_index] }}
-    </span>
   </div>
 </template>
 
@@ -55,7 +91,14 @@
 export default {
   data() {
     return {
-      keyboardMode: false,
+      spanClicked: false,
+      position: { x: 0, y: 0 },
+      search: '',
+      start: null,
+      end: null,
+      searchContains: true,
+      searchMode: this.tasks[this.selectedTaskId.value]?.labels.length > 9
+
     }
   },
   props: {
@@ -65,42 +108,146 @@ export default {
     selectedLabelId: Object,
     currentSentenceId: Object,
     selectedWordId: Object,
+    searchBarOpen: Object,
+    listIndex: Object,
   },
   methods: {
-    setLabel(word_index, currentSentenceId, label) {
-      if (this.tasks[this.selectedTaskId.value].labels.includes(this.data[currentSentenceId.value].words[word_index][this.tasks[this.selectedTaskId.value].output_index])) {
-        this.data[currentSentenceId.value].words[word_index][this.tasks[this.selectedTaskId.value].output_index] = '_'
-      } else {
-        this.data[currentSentenceId.value].words[word_index][this.tasks[this.selectedTaskId.value].output_index] = label
+    clickAway(event) {
+      const elementToCheck = this.$refs?.search;
+
+      if (!elementToCheck?.contains(event.target)) {
+        this.word_index = null
+        this.search = ''
+        this.searchBarOpen.value = false
+
+      }
+
+
+    },
+
+    setLabel(label) {
+      try {
+        this.data[this.currentSentenceId.value].words[this.word_index][this.tasks[this.selectedTaskId.value].output_index] = label
+
+        this.word_index = null
+      } catch (error) {
+
+      }
+
+    },
+    deleteLabel(index) {
+      this.searchBarOpen.value = false
+      this.spanClicked = false
+      this.start = null
+      this.end = null
+      this.data[this.currentSentenceId.value].words[index][this.tasks[this.selectedTaskId.value].output_index] = '_'
+
+    },
+    mouseUp(event) {
+      if (!this.spanClicked) {
+        return
+      }
+      this.word_index = undefined
+      try {
+        this.word_index = window.getSelection().anchorNode.parentElement.attributes.id.value
+        if (window.getSelection().extentNode.parentElement.attributes.id.value != this.word_index) {
+          this.word_index = null
+          window.getSelection().removeAllRanges()
+          return
+        }
+
+      } catch (error) {
+
+      }
+      if (!this.searchMode) {
+        this.setLabel(this.tasks[this.selectedTaskId.value].labels[this.selectedLabelId.value])
+        window.getSelection().removeAllRanges()
+        this.word_index = undefined
+        return
+      }
+
+      this.searchBarOpen.value = true
+      this.$nextTick(() => {
+
+        this.spanClicked = false
+        const modal = this.$refs.search;
+        const padding = 50
+        const modalWidth = modal.offsetWidth + padding;
+        const modalHeight = modal.offsetHeight + padding;
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const maxX = viewportWidth - modalWidth;
+        const maxY = viewportHeight - modalHeight;
+
+        // Calculate the new position
+        const x = Math.min(maxX, event.clientX);
+        const y = Math.min(maxY, event.clientY + 30);
+
+        // Update the position
+        this.position = { x, y };
+        this.$refs.search_input.focus();
+
+      });
+
+
+
+    },
+    addLabel() {
+      if (this.filteredLabels[this.listIndex.value]) {
+        this.setLabel(this.filteredLabels[this.listIndex.value])
+        this.search = ''
+        this.searchBarOpen.value = false
+        this.listIndex.value = 0
+        this.word_index = undefined
       }
 
     },
     handleKeyDown(event) {
-      if (event.repeat) return;
-      // Do something
-      if (event.keyCode == 32) {
-        this.setLabel(this.selectedWordId.value, this.currentSentenceId, this.tasks[this.selectedTaskId.value].labels[this.selectedLabelId.value])
+      if (event.keyCode == 13) {
+        this.addLabel()
+
+
+      }
+      if (event.keyCode == 27) {
+        this.start = null
+        this.end = null
+        this.search = ''
+        this.searchBarOpen.value = false
       }
 
-      if (event.keyCode == 68 && this.selectedWordId.value < this.data[this.currentSentenceId.value].words.length - 1 && this.keyboardMode) {
-        this.selectedWordId.value++
-      }
-
-      if (event.keyCode == 65 && this.selectedWordId.value > 0 && this.keyboardMode) {
-        this.selectedWordId.value--
-      }
     },
+
   },
-  created: function () {
+  computed: {
+    filteredLabels() {
+      if (!this.searchContains) {
+        return this.tasks[this.selectedTaskId.value].labels.filter(label => label.toLowerCase().startsWith(this.search.toLowerCase()))
+      }
+      return this.tasks[this.selectedTaskId.value].labels.filter(label => label.toLowerCase().includes(this.search.toLowerCase()))
+
+    }
+  },
+  created() {
+    window.addEventListener("click", this.clickAway);
     window.addEventListener("keydown", this.handleKeyDown);
+
   },
-  beforeDestroy() {
-    window.removeEventListener('keydown', this.handleKeyDown);
+  beforeUnmount() {
+    window.removeEventListener("click", this.clickAway);
+    window.removeEventListener("keydown", this.handleKeyDown);
+
   },
 }
 
 </script>
 
-<style>
-/* Your component styles here */
+<style scoped>
+::-moz-selection {
+  /* Code for Firefox */
+  background: #FDE694
+}
+
+::selection {
+  background: #FDE694
+}
 </style>

@@ -6,7 +6,11 @@ import Seq2Seq from '../tasks/Seq2Seq.vue';
 export default {
   data() {
     return {
-      time: null
+      time: null,
+      searchBarOpen: { value: false },
+      listIndex: { value: 0 },
+      flag: false,
+      timer: null,
     }
   },
   props: {
@@ -17,6 +21,7 @@ export default {
     selectedLabelId: Object,
     currentSentenceId: Object,
     selectedWordId: Object,
+    searchingSentence: Object,
   },
   methods: {
     setStatus(value) {
@@ -30,7 +35,10 @@ export default {
     handleKeyDown(event) {
 
       if (event.keyCode == 32 && this.currentSentenceId.value < this.data.length) {
-        this.setStatus('accepted')
+        if (!this.searchBarOpen.value) {
+          this.setStatus('accepted')
+        }
+
       }
 
       // Do something
@@ -42,15 +50,43 @@ export default {
         this.$emit('prevSentence')
       }
 
-      if (event.keyCode == 38 && this.selectedTaskId.value > 0) {
-        this.selectedTaskId.value--
+
+
+      if (event.keyCode == 38) {
+        if (this.searchBarOpen.value) {
+          if (this.listIndex.value > 0) {
+            this.listIndex.value--
+            this.$refs?.seq_bio?.$refs?.[(this.listIndex.value).toString()][0]?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            this.$refs?.class?.$refs?.[(this.listIndex.value).toString()][0]?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            this.$refs?.seq?.$refs?.[(this.listIndex.value).toString()][0]?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+          }
+        } else if (this.selectedTaskId.value > 0) {
+          this.selectedLabelId.value = 0;
+          this.selectedTaskId.value--
+        }
+
       }
 
-      if (event.keyCode == 40 && this.selectedTaskId.value < this.tasks.length - 1) {
-        this.selectedTaskId.value++
+      if (event.keyCode == 40) {
+        if (this.searchBarOpen.value) {
+          if (this.listIndex.value < this.tasks[this.selectedTaskId.value].labels.length - 1) {
+            this.listIndex.value++
+            this.$refs?.seq_bio?.$refs?.[(this.listIndex.value).toString()][0]?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            this.$refs?.class?.$refs?.[(this.listIndex.value).toString()][0]?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            this.$refs?.seq?.$refs?.[(this.listIndex.value).toString()][0]?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+
+
+          }
+        } else if (this.selectedTaskId.value < this.tasks.length - 1) {
+          this.selectedLabelId.value = 0;
+          this.selectedTaskId.value++
+        }
+
       }
 
-      if (0 < parseInt(event.key) && parseInt(event.key) < this.tasks[this.selectedTaskId.value]?.labels.length + 1) {
+      if (0 < parseInt(event.key) && parseInt(event.key) < this.tasks[this.selectedTaskId.value]?.labels.length + 1 && !this.searchingSentence.value) {
         this.selectedLabelId.value = event.key - 1;
         if (!this.tasks[this.selectedTaskId.value].type.isWordLevel) {
           this.data[this.currentSentenceId.value].strings.find(string => string.name == this.tasks[this.selectedTaskId.value].output_index).string = this.tasks[this.selectedTaskId.value].labels[event.key - 1]
@@ -61,18 +97,16 @@ export default {
     },
   },
   created() {
-    const startTime = new Date()
-    startTime
+    this.timer = setInterval(() => {
+      alert("Remember to export the annotation file continuously so you don't risk loosing your progress")
+    }, 600000)
     window.addEventListener("keydown", this.handleKeyDown);
-    var currentTime = new Date()
-    this.time = new Date(currentTime - startTime - 3600000).toTimeString().split(' ')[0];
-    setInterval(() => {
-      currentTime = new Date()
-      this.time = new Date(currentTime - startTime - 3600000).toTimeString().split(' ')[0];
-    }, 1000);
+
   },
   beforeUnmount() {
+    clearInterval(this.timer);
     window.removeEventListener('keydown', this.handleKeyDown);
+
   },
   components: { Seq, Class, SeqBio, Seq2Seq }
 }
@@ -94,23 +128,19 @@ export default {
         </div>
       </div>
 
-      <div class="flex justify-between bg-white w-28 items-center p-2 border-2 border-purple-500 rounded-md">
-        <p class="text-purple-500">{{ time }}</p>
-        <font-awesome-icon icon="fa-solid fa-clock" class="text-purple-500" />
-
-      </div>
     </div>
     <div class="flex flex-col gap-6 w-[calc(100vw-250px)] overflow-hidden">
       <div class="border-4 m-auto rounded-xl"
         :class="this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string == 'accepted' ? 'border-green-400 border-4 rounded-sm' : this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string == 'rejected' ? 'border-red-400 border-4 rounded-sm' : this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string == 'unsure' ? 'border-yellow-400 border-4 rounded-sm' : null">
-        <Seq v-if="tasks[selectedTaskId.value]?.type.name == 'seq'" :data="data" :tasks="tasks"
+        <Seq ref="seq" v-if="tasks[selectedTaskId.value]?.type.name == 'seq'" :data="data" :tasks="tasks"
           :selectedLabelId="selectedLabelId" :selectedTaskId="selectedTaskId" :selectedWordId="selectedWordId"
-          :currentSentenceId="currentSentenceId" />
-        <SeqBio v-if="tasks[selectedTaskId.value]?.type.name == 'seq_bio'" :data="data" :tasks="tasks"
-          :selectedLabelId="selectedLabelId" :selectedTaskId="selectedTaskId" :selectedWordId="selectedWordId"
-          :currentSentenceId="currentSentenceId" />
-        <Class v-if="tasks[selectedTaskId.value]?.type.name == 'classification'" :data="data" :tasks="tasks"
-          :selectedLabelId="selectedLabelId" :selectedTaskId="selectedTaskId" :currentSentenceId="currentSentenceId" />
+          :currentSentenceId="currentSentenceId" :searchBarOpen="searchBarOpen" :listIndex="listIndex" />
+        <SeqBio v-if="tasks[selectedTaskId.value]?.type.name == 'seq_bio'" ref="seq_bio" :data="data" :tasks="tasks"
+          :listIndex="listIndex" :selectedLabelId="selectedLabelId" :selectedTaskId="selectedTaskId"
+          :selectedWordId="selectedWordId" :currentSentenceId="currentSentenceId" :searchBarOpen="searchBarOpen" />
+        <Class ref="class" v-if="tasks[selectedTaskId.value]?.type.name == 'class'" :data="data" :tasks="tasks"
+          :selectedLabelId="selectedLabelId" :selectedTaskId="selectedTaskId" :currentSentenceId="currentSentenceId"
+          :listIndex="listIndex" :searchBarOpen="searchBarOpen" />
         <Seq2Seq v-if="tasks[selectedTaskId.value]?.type.name == 'seq2seq'" :data="data" :tasks="tasks"
           :selectedLabelId="selectedLabelId" :selectedTaskId="selectedTaskId" :currentSentenceId="currentSentenceId" />
 
@@ -123,9 +153,16 @@ export default {
           class="cursor-pointer group p-2 m-[-8px]" @click="$emit('prevSentence')">
           <font-awesome-icon icon="fa-solid fa-chevron-left" class="" />
         </div>
-        <p class="flex">{{ currentSentenceId.value + 1 }} / {{ data.length }}</p>
+        <p v-if="!searchingSentence.value" @click="searchingSentence.value = true; $nextTick(() => {
+          $refs.sentenceSearch.focus()
+        })" class="flex">{{
+  currentSentenceId.value + 1 }} / {{
+    data.length - 1 }}</p>
+        <input @keydown.enter="event => $emit('searchSentence', event)" @blur="event => $emit('searchSentence', event)"
+          ref="sentenceSearch" class="w-16 rounded-md outline-none bg-gray-300 text-center"
+          @change="event => $emit('searchSentence', event)" v-if="searchingSentence.value" type="text">
         <div class="cursor-pointer group p-2 m-[-8px]"
-          :class="{ 'text-gray-500 hover:text-gray-700': currentSentenceId.value < data.length, 'text-gray-300 pointer-events-none': currentSentenceId.value == data.length }"
+          :class="{ 'text-gray-500 hover:text-gray-700': currentSentenceId.value < data.length - 2, 'text-gray-300 pointer-events-none': currentSentenceId.value == data.length - 2 }"
           @click="$emit('nextSentence')">
           <font-awesome-icon icon="fa-solid fa-chevron-right" />
         </div>

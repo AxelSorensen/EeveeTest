@@ -1,39 +1,86 @@
 
 
 <template>
+  <div v-if="searchBarOpen.value" class=" bg-white z-[1] rounded-md absolute shadow-lg p-4 pb-0" ref="search"
+    :style="{ top: position.y + 'px', left: position.x + 'px' }">
+    <div class="flex justify-between items-center">
+
+      <p class="text-gray-400 text-xs mb-2" for="">Select a label</p>
+      <div class="flex gap-2 items-center">
+        <p @click="searchContains = false; $refs.search_input.focus()"
+          :class="!searchContains ? 'bg-purple-400 text-white' : 'hover:bg-gray-100'"
+          class="text-gray-400 cursor-pointer  text-xs mb-2 p-1 rounded-md" for="">..a
+        </p>
+        <p @click="searchContains = true; $refs.search_input.focus()"
+          :class="searchContains ? 'bg-purple-400 text-white' : 'hover:bg-gray-100'"
+          class="text-gray-400 cursor-pointer text-xs mb-2 p-1 rounded-md" for="">..a..
+        </p>
+      </div>
+    </div>
+    <input @input="listIndex.value = 0" ref="search_input" v-model="search" type="text"
+      class="w-[87%] outline-none border-b-2 border-purple-500 h-10 mb-4">
+    <div class="divide-y flex flex-col h-32 overflow-scroll w-full">
+      <div @mouseover="listIndex.value = index" v-for="label, index in  filteredLabels "
+        class="flex justify-between items-center text-sm p-2 w-[90%] cursor-pointer" @click="addLabel" :ref="index"
+        :class="index == listIndex.value ? 'bg-gray-100 font-bold' : null">
+        <div class="bg-purple-100 text-xs w-6 rounded-full flex justify-center items-center h-6">{{ label[0].toLowerCase()
+        }}
+        </div>
+        {{
+          label }}
+      </div>
+    </div>
+  </div>
+
   <div class="grid grid-rows-[fit-content] rounded-md mx-auto w-[calc(100vw-250px-64px)]">
-    <div class="bg-purple-500 flex justify-between p-2 rounded-t-md">
+    <div class="bg-purple-500 flex justify-between p-2 rounded-t-md min-h-[40px]">
       <div class="flex gap-2 flex-wrap">
-        <div class="rounded-md p-2 px-6 border border-white border-1 font-bold text-center relative"
+        <div v-if="!searchMode" class="rounded-md p-2 px-6 border border-white border-1 font-bold text-center relative"
           :class="index == selectedLabelId.value ? 'bg-white text-purple-500' : 'text-white hover:bg-purple-400 cursor-pointer'"
-          v-for="label, index in tasks[selectedTaskId.value]?.labels.sort()" @click="this.selectedLabelId.value = index">
+          v-for="   label, index  in  tasks[selectedTaskId.value]?.labels.sort()   "
+          @click="this.selectedLabelId.value = index">
           <p class="absolute text-xs top-0 left-1 p-1">{{ index + 1 }}</p>
           {{ label }}
         </div>
 
 
       </div>
-
-
+      <div v-if="this.tasks[this.selectedTaskId.value]?.labels.length <= 9"
+        class="items-center justify-center flex gap-2">
+        <div class="group cursor-pointer " @click="searchMode = false">
+          <font-awesome-icon class="mr-2 text-lg"
+            :class="!searchMode ? 'text-purple-200' : 'group-hover:text-purple-400 text-purple-800'"
+            icon="fa-solid fa-rectangle-list" />
+        </div>
+        <div class="group cursor-pointer" @click="searchMode = true">
+          <font-awesome-icon class="mr-2 text-lg"
+            :class="searchMode ? 'text-purple-200' : 'group-hover:text-purple-400 text-purple-800'"
+            icon="fa-solid fa-search" />
+        </div>
+      </div>
     </div>
-    <div @mouseup="mouseUp" class="justify-center items-center flex bg-white rounded-b-md ">
+    <div @click.stop="" @mouseup.stop="mouseUp" class="justify-center items-center flex bg-white rounded-b-md ">
       <div v-if="data.length > 0" class="flex justify-center items-center  rounded-b-md gap-2 flex-wrap gap-y-4 m-8">
-        <span @mousedown="spanClicked = true" v-for="word, index in data[currentSentenceId.value]?.words"
+        <span @mousedown="spanClicked = true" v-for="   word, index    in    data[currentSentenceId.value]?.words   "
           class="relative flex">
-          <span v-if="word[tasks[selectedTaskId.value].output_index][0] == 'B'">
+          <span
+            v-if="word[tasks[selectedTaskId.value].output_index][0] == 'B' && tasks[selectedTaskId.value]?.labels.includes((word[tasks[selectedTaskId.value].output_index]).slice(2))">
             <div @mouseup.stop="" @click.stop="deleteBioLabel(index)"
-              class="relative group cursor-pointer w-2 bg-yellow-400 h-full ml-2">
+              class="relative group cursor-pointer w-2 bg-yellow-200 h-full ml-2">
               <font-awesome-icon icon="fa-solid fa-xmark"
                 class="text-gray-400 group-hover:bg-gray-300 flex w-2 h-2 p-1 left-[-8px] absolute top-[-8px] bg-gray-200 rounded-full" />
             </div>
           </span>
           <span :id="index"
-            :class="tasks[selectedTaskId.value]?.labels.includes((word[tasks[selectedTaskId.value].output_index]).slice(2)) ? 'bg-yellow-400 p-1 mx-[-4px] text-black hover' : null, index == selectedWordId.value && !tasks[selectedTaskId.value]?.labels.includes(word[tasks[selectedTaskId.value].output_index]) && keyboardMode ? 'bg-gray-300' : '', index == selectedWordId.value && tasks[selectedTaskId.value]?.labels.includes(word[tasks[selectedTaskId.value].output_index]) && keyboardMode ? 'bg-purple-400' : ''">
+            @click.stop="tasks[selectedTaskId.value]?.labels.includes((word[tasks[selectedTaskId.value].output_index]).slice(2)) ? changeLabel(index) : null"
+            :name="tasks[selectedTaskId.value]?.labels.includes((word[tasks[selectedTaskId.value].output_index]).slice(2)) ? 'selected' : null"
+            :class="tasks[selectedTaskId.value]?.labels.includes((word[tasks[selectedTaskId.value].output_index]).slice(2)) ? 'bg-yellow-200 p-1 mx-[-4px]' : (start !== null && end !== null && index >= start && index <= end) ? 'bg-yellow-400 bg-opacity-50 p-1 mx-[-4px] ' : null">
             {{ word[tasks[selectedTaskId.value].input_index] }}</span>
           <span
-            v-if="word[tasks[selectedTaskId.value].output_index][0] == 'I' && data[currentSentenceId.value]?.words[index + 1]?.[tasks[selectedTaskId.value].output_index][0] != 'I' || word[tasks[selectedTaskId.value].output_index][0] == 'B' && data[currentSentenceId.value]?.words[index + 1]?.[tasks[selectedTaskId.value].output_index][0] != 'I'"
-            class="text-xs text-white font-semibold bg-yellow-400">
-            <p class="p-2">{{
+            @click.stop="tasks[selectedTaskId.value]?.labels.includes((word[tasks[selectedTaskId.value].output_index]).slice(2)) ? changeLabel(index) : null"
+            v-if="word[tasks[selectedTaskId.value].output_index][0] == 'I' && data[currentSentenceId.value]?.words[index + 1]?.[tasks[selectedTaskId.value].output_index][0] != 'I' || word[tasks[selectedTaskId.value].output_index][0] == 'B' && data[currentSentenceId.value]?.words[index + 1]?.[tasks[selectedTaskId.value].output_index][0] != 'I' && tasks[selectedTaskId.value]?.labels.includes((word[tasks[selectedTaskId.value].output_index]).slice(2))"
+            class="text-xs text-purple-700 font-semibold text-ellipsis bg-yellow-200">
+            <p class="p-2 truncate max-w-[20ch]">{{
               word[tasks[selectedTaskId.value].output_index].slice(2) }}
             </p>
           </span>
@@ -49,6 +96,14 @@ export default {
   data() {
     return {
       spanClicked: false,
+      position: { x: 0, y: 0 },
+      search: '',
+      start: null,
+      end: null,
+      searchContains: true,
+      searchMode: this.tasks[this.selectedTaskId.value]?.labels.length > 9,
+      changingLabel: false,
+
     }
   },
   props: {
@@ -58,67 +113,192 @@ export default {
     selectedLabelId: Object,
     currentSentenceId: Object,
     selectedWordId: Object,
+    searchBarOpen: Object,
+    listIndex: Object,
   },
   methods: {
+    clickAway(event) {
+      const elementToCheck = this.$refs?.search;
+
+      if (!elementToCheck?.contains(event.target)) {
+        this.start = null
+        this.end = null
+        this.search = ''
+        this.searchBarOpen.value = false
+
+      }
+
+
+    },
+
     setBioLabel(start, end, currentSentenceId, label) {
       for (let i = start; i <= end; i++) {
         if (i == start) {
-          this.data[currentSentenceId.value].words[i][this.tasks[this.selectedTaskId.value].output_index] = 'B-' + this.tasks[this.selectedTaskId.value].labels[this.selectedLabelId.value]
+          this.data[currentSentenceId.value].words[i][this.tasks[this.selectedTaskId.value].output_index] = 'B-' + label
         } else {
-          this.data[currentSentenceId.value].words[i][this.tasks[this.selectedTaskId.value].output_index] = 'I-' + this.tasks[this.selectedTaskId.value].labels[this.selectedLabelId.value]
+          this.data[currentSentenceId.value].words[i][this.tasks[this.selectedTaskId.value].output_index] = 'I-' + label
         }
       }
 
 
     },
     deleteBioLabel(index) {
+      this.searchBarOpen.value = false
       this.spanClicked = false
-      while (this.data[this.currentSentenceId.value].words[index][this.tasks[this.selectedTaskId.value].output_index][0] != '_' && this.data[this.currentSentenceId.value].words[index + 1]?.[this.tasks[this.selectedTaskId.value].output_index][0] != 'B') {
-        this.data[this.currentSentenceId.value].words[index][this.tasks[this.selectedTaskId.value].output_index] = '_'
+      this.start = null
+      this.end = null
+      this.data[this.currentSentenceId.value].words[index][this.tasks[this.selectedTaskId.value].output_index] = 'O'
+      index++;
+      while (this.data[this.currentSentenceId.value].words[index][this.tasks[this.selectedTaskId.value].output_index][0] != 'O' && this.data[this.currentSentenceId.value].words[index]?.[this.tasks[this.selectedTaskId.value].output_index][0] != 'B') {
+        this.data[this.currentSentenceId.value].words[index][this.tasks[this.selectedTaskId.value].output_index] = 'O'
         index++;
       }
-      if (index == this.data[this.currentSentenceId.value].words.length - 1) {
-        this.data[this.currentSentenceId.value].words[index][this.tasks[this.selectedTaskId.value].output_index] = '_'
+      if (index == this.data[this.currentSentenceId.value].words.length - 1 && this.data[this.currentSentenceId.value].words[index]?.[this.tasks[this.selectedTaskId.value].output_index][0] != 'B') {
+        this.data[this.currentSentenceId.value].words[index][this.tasks[this.selectedTaskId.value].output_index] = 'O'
       }
-      this.data[this.currentSentenceId.value].words[index][this.tasks[this.selectedTaskId.value].output_index] = '_'
 
     },
-    mouseUp() {
-      if (!this.spanClicked) {
+    changeLabel(index) {
+      this.changingLabel = true
+      this.end = index;
+
+      this.start = index;
+      while (this.data[this.currentSentenceId.value].words[this.start][this.tasks[this.selectedTaskId.value].output_index][0] != 'O' && this.data[this.currentSentenceId.value].words?.[this.start]?.[this.tasks[this.selectedTaskId.value]?.output_index][0] != 'B' && this.start >= 0) {
+        this.start--;
+      }
+      while (this.data[this.currentSentenceId.value].words[this.end + 1]?.[this.tasks[this.selectedTaskId.value].output_index][0] != 'O' && this.data[this.currentSentenceId.value].words?.[this.end + 1]?.[this.tasks[this.selectedTaskId.value]?.output_index][0] != 'B' && this.end < this.data[this.currentSentenceId.value].words.length - 1) {
+        this.end++;
+      }
+      console.log(this.start, this.end)
+      if (!this.searchMode) {
+        this.setBioLabel(Math.min(this.start, this.end), Math.max(this.start, this.end), this.currentSentenceId, this.tasks[this.selectedTaskId.value].labels[this.selectedLabelId.value])
+      } else {
+        this.searchBarOpen.value = true
+        this.$nextTick(() => {
+
+          this.spanClicked = false
+          const modal = this.$refs.search;
+          const padding = 50
+          const modalWidth = modal.offsetWidth + padding;
+          const modalHeight = modal.offsetHeight + padding;
+          const viewportWidth = window.innerWidth;
+          const viewportHeight = window.innerHeight;
+          const maxX = viewportWidth - modalWidth;
+          const maxY = viewportHeight - modalHeight;
+
+          // Calculate the new position
+          const x = Math.min(maxX, event.clientX);
+          const y = Math.min(maxY, event.clientY + 30);
+
+          // Update the position
+          this.position = { x, y };
+          this.$refs.search_input.focus();
+        })
+      }
+
+
+    },
+    mouseUp(event) {
+      if (!this.spanClicked || event.target.attributes?.name?.value == 'selected') {
         return
       }
-      var start = undefined;
-      var end = undefined;
+
+      this.start = undefined;
+      this.end = undefined;
       try {
-        start = window.getSelection().anchorNode.parentElement.attributes.id.value
-        end = window.getSelection().extentNode.parentElement.attributes.id.value
+        this.start = window.getSelection().anchorNode.parentElement.attributes.id.value
+
+        this.end = window.getSelection().extentNode.parentElement.attributes.id.value
       } catch (error) {
-        if (start && end == undefined) {
-          end = window.getSelection().extentNode.id - 1
+        if (this.start && this.end == undefined) {
+          this.end = window.getSelection().extentNode.id - 1
         }
       }
-      this.setBioLabel(Math.min(start, end), Math.max(start, end), this.currentSentenceId, 0)
-      window.getSelection().removeAllRanges()
-      this.spanClicked = false
+      if (!this.searchMode) {
+        this.setBioLabel(Math.min(this.start, this.end), Math.max(this.start, this.end), this.currentSentenceId, this.tasks[this.selectedTaskId.value].labels[this.selectedLabelId.value])
+        window.getSelection().removeAllRanges()
+        return
+      }
 
+      this.searchBarOpen.value = true
+      this.$nextTick(() => {
+
+        this.spanClicked = false
+        const modal = this.$refs.search;
+        const padding = 50
+        const modalWidth = modal.offsetWidth + padding;
+        const modalHeight = modal.offsetHeight + padding;
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const maxX = viewportWidth - modalWidth;
+        const maxY = viewportHeight - modalHeight;
+
+        // Calculate the new position
+        const x = Math.min(maxX, event.clientX);
+        const y = Math.min(maxY, event.clientY + 30);
+
+        // Update the position
+        this.position = { x, y };
+        this.$refs.search_input.focus();
+
+      });
+
+
+
+    },
+    addLabel() {
+      if (this.filteredLabels[this.listIndex.value]) {
+        if (this.changingLabel) {
+          this.setBioLabel(Math.min(this.start, this.end), Math.max(this.start, this.end), this.currentSentenceId, this.filteredLabels[this.listIndex.value])
+          this.changingLabel = false;
+
+        } else {
+          this.setBioLabel(Math.min(this.start, this.end), Math.max(this.start, this.end), this.currentSentenceId, this.filteredLabels[this.listIndex.value])
+        }
+
+        this.search = ''
+        this.searchBarOpen.value = false
+        this.listIndex.value = 0
+        this.start = undefined;
+        this.end = undefined;
+      }
 
     },
     handleKeyDown(event) {
-      if (event.repeat) return;
-      // Do something
-      if (event.keyCode == 32) {
-        this.setLabel(this.selectedWordId.value, this.currentSentenceId, this.tasks[this.selectedTaskId.value].labels[this.selectedLabelId.value])
+      if (event.keyCode == 13) {
+        this.addLabel()
+
+
+      }
+      if (event.keyCode == 27) {
+        this.start = null
+        this.end = null
+        this.search = ''
+        this.searchBarOpen.value = false
       }
 
+    },
 
-    },
-    created: function () {
-      window.addEventListener("keydown", this.handleKeyDown);
-    },
-    beforeDestroy() {
-      window.removeEventListener('keydown', this.handleKeyDown);
-    },
-  }
+  },
+  computed: {
+    filteredLabels() {
+      if (!this.searchContains) {
+        return this.tasks[this.selectedTaskId.value].labels.filter(label => label.toLowerCase().startsWith(this.search.toLowerCase()))
+      }
+      return this.tasks[this.selectedTaskId.value].labels.filter(label => label.toLowerCase().includes(this.search.toLowerCase()))
+
+    }
+  },
+  created() {
+    window.addEventListener("click", this.clickAway);
+    window.addEventListener("keydown", this.handleKeyDown);
+
+  },
+  beforeUnmount() {
+    window.removeEventListener("click", this.clickAway);
+    window.removeEventListener("keydown", this.handleKeyDown);
+
+  },
 }
 
 </script>
@@ -126,10 +306,10 @@ export default {
 <style scoped>
 ::-moz-selection {
   /* Code for Firefox */
-  background: #FACC14;
+  background: #FDE694
 }
 
 ::selection {
-  background: #FACC14;
+  background: #FDE694
 }
 </style>
