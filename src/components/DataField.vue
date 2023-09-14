@@ -20,7 +20,7 @@
           icon="fa-solid fa-trash-can" /></div>
 
     </div>
-    <div v-if="data.length > 0" class="overflow-scroll " ref="scrollToMe">
+    <div v-if="data.length > 0" class="overflow-scroll" ref="scrollToMe">
       <table v-if="!showStrings.value" class="bg-white w-full text-center text-sm">
         <thead class="bg-purple-500 text-white top-0 sticky">
           <tr class="text-center divide-x divide-purple-700">

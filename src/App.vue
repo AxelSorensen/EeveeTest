@@ -212,7 +212,8 @@ export default {
 
               this.data = data.map(sentence => {
                 const strings = (sentence.match(/#[^\n]*/g)?.map(string => {
-                  return { name: string.split('=')[0].trim(), string: string.split('=')[1].trim() }
+                  console.log(string)
+                  return { name: string.split('=')[0]?.trim(), string: string.split('=')[1]?.trim() }
                 })) ?? [];
                 const rows = sentence.split("\n")
                 const words = rows.slice(strings?.length ?? 0).map(row => {
@@ -226,7 +227,8 @@ export default {
                 return { strings: strings, words: words };
               });
             } catch (error) {
-              alert('Could not import the selected file. Make sure that the content aligns with the .conll format.')
+              console.log(error)
+              // alert('Could not import the selected file. Make sure that the content aligns with the .conll format.')
             }
 
           }
@@ -256,11 +258,11 @@ export default {
     tasksAreFilled() {
       return this.tasks.every(task => {
         if (task.type.isWordLevel) {
-          return (task.output_index < this.data[0]?.words[0]?.length - 1 && task.output_index > 0 && task.input_index < this.data[0]?.words[0]?.length - 1 && task.input_index > 0 && task.labels.length > 0)
+          return (task.output_index != '' && task.output_index < this.data[0]?.words[0]?.length && task.output_index >= 0 && task.input_index < this.data[0]?.words[0]?.length && task.input_index >= 0 && task.labels.length > 0 && task.input_index != '')
         } else if (task.type.name == 'seq2seq') {
-          return (this.data[0]?.strings.some(string => string.name === task.output_index) && task.input_index < this.data[0]?.words[0]?.length - 1 && task.input_index > 0)
+          return (this.data[0]?.strings.some(string => string.name === task.output_index) && task.input_index < this.data[0]?.words[0]?.length && task.input_index >= 0)
         } else {
-          return (this.data[0]?.strings.some(string => string.name === task.output_index) && task.input_index < this.data[0]?.words[0]?.length - 1 && task.input_index > 0 && task.labels.length > 0)
+          return (this.data[0]?.strings.some(string => string.name === task.output_index) && task.input_index < this.data[0]?.words[0]?.length && task.input_index > 0 && task.labels.length > 0)
         }
 
       })
@@ -306,6 +308,7 @@ export default {
           @updateRowName="updateRowName" :currentSentenceId="currentSentenceId" :tasks="tasks" @loadHFData="loadHFData"
           :dataName="dataName" />
       </div>
+
       <div v-if="page.name == 'annotate'">
         <Annotate :selectedWordId="selectedWordId" :searchingSentence="searchingSentence" :page="page" :data="data"
           :tasks="tasks" :selectedTaskId="selectedTaskId" @setLabel="setLabel" :selectedLabelId="selectedLabelId"

@@ -173,7 +173,7 @@ export default {
               </div>
             </div>
 
-            <div class="flex gap-2 mt-4 flex-wrap overflow-scroll w-full max-h-28">
+            <div class="flex gap-2 mt-4 flex-wrap overflow-scroll w-full max-h-[72px]">
               <div v-if="tasks[selectedTaskId.value].labels.length > 0"
                 class="group text-white bg-purple-500 text-sm p-1 px-2 rounded-md h-7 hover:bg-purple-600 cursor-pointer whitespace-nowrap"
                 @click="$emit('deleteLabel', label)" v-for="    label     in     tasks[selectedTaskId.value].labels    ">
