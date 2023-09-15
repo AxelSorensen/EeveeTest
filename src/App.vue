@@ -262,7 +262,7 @@ export default {
         } else if (task.type.name == 'seq2seq') {
           return (this.data[0]?.strings.some(string => string.name === task.output_index) && task.input_index < this.data[0]?.words[0]?.length && task.input_index >= 0)
         } else {
-          return (this.data[0]?.strings.some(string => string.name === task.output_index) && task.input_index < this.data[0]?.words[0]?.length && task.input_index > 0 && task.labels.length > 0)
+          return (this.data[0]?.strings.some(string => string.name === task.output_index) && task.input_index < this.data[0]?.words[0]?.length && task.input_index >= 0 && task.labels.length > 0)
         }
 
       })
