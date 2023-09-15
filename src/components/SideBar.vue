@@ -68,7 +68,7 @@ export default {
             :class="{ 'opacity-50 pointer-events-none': tasks.length == 0 }" @click="$emit('exportTaskFile')">
             Export task file<font-awesome-icon icon="fa-solid fa-file-arrow-down" class="text-lg" /></div>
           <div v-if="page.name == 'config'" class="flex items-center justify-center p-2">
-            <hr>
+            <hr class="rounded-full">
           </div>
           <div v-if="page.name == 'config'"
             class="text-gray-500 bg-gray-200 w-full h-10 p-4 text-sm  rounded-md items-center justify-between gap-2 flex hover:bg-gray-300 cursor-pointer"
@@ -82,7 +82,7 @@ export default {
 
         </div>
         <div class="flex items-center justify-center">
-          <hr>
+          <hr class="rounded-full">
         </div>
         <div
           class="text-gray-500 bg-gray-200 w-full h-10 p-4 text-sm rounded-md items-center gap-2 flex hover:bg-gray-300 cursor-pointer"

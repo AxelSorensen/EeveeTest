@@ -17,9 +17,15 @@ export default {
   },
   methods: {
     setDefaultValue() {
-      this.data.map(data => data.words.map(word => ([
-        word[this.tasks[this.selectedTaskId.value].output_index] = this.emptyValue
-      ])));
+      if (this.tasks[this.selectedTaskId.value].type.isWordLevel) {
+        this.data.map(data => data.words.map(word => ([
+          word[this.tasks[this.selectedTaskId.value].output_index] = this.emptyValue
+        ])));
+      } else {
+        this.data.map(data => data.strings.find(string => string.name == this.tasks[this.selectedTaskId.value].output_index
+        ).string = this.emptyValue);
+      }
+
     }
   },
   computed: {
@@ -71,7 +77,7 @@ export default {
           <label class="text-center text-sm font-semibold text-gray-500 mb-2" for="">Task type</label>
 
           <div class="flex justify-center">
-            <p @click="tasks[selectedTaskId.value].type = task_type; showStrings.value = !tasks[selectedTaskId.value].type.isWordLevel; tasks[selectedTaskId.value].output_index = ''"
+            <p @click="tasks[selectedTaskId.value].type = task_type; showStrings.value = !tasks[selectedTaskId.value].type.isWordLevel; tasks[selectedTaskId.value].output_index = ''; emptyValue = ''"
               v-for="task_type in    taskTypes   "
               :class="tasks[selectedTaskId.value]?.type.name == task_type.name ? 'bg-purple-200 pointer-events-none ring-1 ring-purple-300' : 'bg-white hover:bg-gray-100 ring-gray-300'"
               class=" p-1 text-sm px-4 cursor-pointer ring-1">{{ task_type.name }}</p>

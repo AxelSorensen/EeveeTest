@@ -7,10 +7,12 @@ export default {
   data() {
     return {
       time: null,
-      searchBarOpen: { value: false },
       listIndex: { value: 0 },
       flag: false,
       timer: null,
+      searchMode: false,
+      searchContains: { value: false },
+      search: { value: '' }
     }
   },
   props: {
@@ -22,15 +24,30 @@ export default {
     currentSentenceId: Object,
     selectedWordId: Object,
     searchingSentence: Object,
+    searchBarOpen: Object,
   },
   methods: {
+    jumpToProgress() {
+      for (let i = 0; i < this.data.length; i++) {
+        const status = this.data[i].strings.find(string => string.name == '# status').string
+        if (status == '_') {
+          this.currentSentenceId.value = i
+          return
+        }
+      }
+
+
+    },
     setStatus(value) {
       this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string = value
-      window.removeEventListener('keydown', this.handleKeyDown);
-      setTimeout(() => {
-        this.currentSentenceId.value++
-        window.addEventListener('keydown', this.handleKeyDown);
-      }, 200);
+      if (value != '_') {
+        window.removeEventListener('keydown', this.handleKeyDown);
+        setTimeout(() => {
+          this.currentSentenceId.value++
+          window.addEventListener('keydown', this.handleKeyDown);
+        }, 200);
+      }
+
     },
     handleKeyDown(event) {
 
@@ -70,7 +87,7 @@ export default {
 
       if (event.keyCode == 40) {
         if (this.searchBarOpen.value) {
-          if (this.listIndex.value < this.tasks[this.selectedTaskId.value].labels.length - 1) {
+          if (this.listIndex.value < this.filteredLabels.length - 1) {
             this.listIndex.value++
             this.$refs?.seq_bio?.$refs?.[(this.listIndex.value).toString()][0]?.scrollIntoView({ behavior: "smooth", block: "nearest" });
             this.$refs?.class?.$refs?.[(this.listIndex.value).toString()][0]?.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -86,7 +103,7 @@ export default {
 
       }
 
-      if (0 < parseInt(event.key) && parseInt(event.key) < this.tasks[this.selectedTaskId.value]?.labels.length + 1 && !this.searchingSentence.value) {
+      if (0 < parseInt(event.key) && parseInt(event.key) < this.tasks[this.selectedTaskId.value]?.labels.length + 1 && !this.searchMode.value) {
         this.selectedLabelId.value = event.key - 1;
         if (!this.tasks[this.selectedTaskId.value].type.isWordLevel) {
           this.data[this.currentSentenceId.value].strings.find(string => string.name == this.tasks[this.selectedTaskId.value].output_index).string = this.tasks[this.selectedTaskId.value].labels[event.key - 1]
@@ -95,6 +112,15 @@ export default {
 
 
     },
+  },
+  computed: {
+    filteredLabels() {
+      if (!this.searchContains.value) {
+        return this.tasks[this.selectedTaskId.value].labels.filter(label => label.toLowerCase().startsWith(this.search.value.toLowerCase()))
+      }
+      return this.tasks[this.selectedTaskId.value].labels.filter(label => label.toLowerCase().includes(this.search.value.toLowerCase()))
+
+    }
   },
   created() {
     this.timer = setInterval(() => {
@@ -115,15 +141,19 @@ export default {
 <template>
   <div class="grid grid-rows-[fit-content(20px),1fr,200px] items-center bg-gray-200 h-screen justify-between">
     <div class="flex gap-8 p-4 px-8 items-center">
-      <div class="flex gap-2 flex-1">
+      <div class="flex gap-2 flex-1 items-center">
         <p class="text-xs text-gray-400">Progress:</p>
         <div class="bg-gray-300 overflow-hidden rounded-full flex-1 h-4 flex">
 
-          <div
+          <div @click="this.currentSentenceId.value = index"
             :class="index == currentSentenceId.value ? 'bg-white' : this.data[index].strings.find(string => string.name == '# status').string == 'accepted' ? 'bg-green-400' : this.data[index].strings.find(string => string.name == '# status').string == 'rejected' ? 'bg-red-400' : this.data[index].strings.find(string => string.name == '# status').string == 'unsure' ? 'bg-yellow-400' : null"
             v-for="(item, index) in  data" class="flex-grow bg-gray-300">
           </div>
 
+
+        </div>
+        <div @click="jumpToProgress" class="text-xs text-gray-600 rounded-md px-2 p-1 hover:bg-gray-300 cursor-pointer">
+          <font-awesome-icon icon="fa-solid fa-angles-right" class="" size="lg" />
 
         </div>
       </div>
@@ -134,13 +164,16 @@ export default {
         :class="this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string == 'accepted' ? 'border-green-400 border-4 rounded-sm' : this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string == 'rejected' ? 'border-red-400 border-4 rounded-sm' : this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string == 'unsure' ? 'border-yellow-400 border-4 rounded-sm' : null">
         <Seq ref="seq" v-if="tasks[selectedTaskId.value]?.type.name == 'seq'" :data="data" :tasks="tasks"
           :selectedLabelId="selectedLabelId" :selectedTaskId="selectedTaskId" :selectedWordId="selectedWordId"
-          :currentSentenceId="currentSentenceId" :searchBarOpen="searchBarOpen" :listIndex="listIndex" />
+          :currentSentenceId="currentSentenceId" :searchBarOpen="searchBarOpen" :listIndex="listIndex"
+          :searchMode="searchMode" :search="search" :searchContains="searchContains" :filteredLabels="filteredLabels" />
         <SeqBio v-if="tasks[selectedTaskId.value]?.type.name == 'seq_bio'" ref="seq_bio" :data="data" :tasks="tasks"
           :listIndex="listIndex" :selectedLabelId="selectedLabelId" :selectedTaskId="selectedTaskId"
-          :selectedWordId="selectedWordId" :currentSentenceId="currentSentenceId" :searchBarOpen="searchBarOpen" />
+          :selectedWordId="selectedWordId" :currentSentenceId="currentSentenceId" :searchBarOpen="searchBarOpen"
+          :searchMode="searchMode" :search="search" :searchContains="searchContains" :filteredLabels="filteredLabels" />
         <Class ref="class" v-if="tasks[selectedTaskId.value]?.type.name == 'class'" :data="data" :tasks="tasks"
           :selectedLabelId="selectedLabelId" :selectedTaskId="selectedTaskId" :currentSentenceId="currentSentenceId"
-          :listIndex="listIndex" :searchBarOpen="searchBarOpen" />
+          :searchMode="searchMode" :listIndex="listIndex" :searchBarOpen="searchBarOpen" :search="search"
+          :searchContains="searchContains" :filteredLabels="filteredLabels" />
         <Seq2Seq v-if="tasks[selectedTaskId.value]?.type.name == 'seq2seq'" :data="data" :tasks="tasks"
           :selectedLabelId="selectedLabelId" :selectedTaskId="selectedTaskId" :currentSentenceId="currentSentenceId" />
 
@@ -182,6 +215,10 @@ export default {
           <font-awesome-icon title="Unsure" icon="fa-solid fa-question"
             class="bg-yellow-400 p-4 rounded-md hover:bg-yellow-300 cursor-pointer text-yellow-900"
             :class="{ 'ring ring-offset-2 ring-yellow-400 hover:bg-yellow-400': this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string == 'unsure' }" />
+        </div>
+        <div @click="setStatus('_')">
+          <font-awesome-icon title="Correct" icon="fa-solid fa-ban"
+            class="bg-gray-100 p-4 rounded-md hover:bg-gray-200 cursor-pointer text-gray-600" />
         </div>
 
       </div>

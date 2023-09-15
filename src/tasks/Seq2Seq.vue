@@ -13,7 +13,8 @@
       <div class="flex gap-4 w-full p-4">
 
         <div class="w-full">
-          <textarea @keydown.tab="e => { e.preventDefault(); e.target.blur() }" ref="input"
+          <textarea @keydown.tab="e => { e.preventDefault(); e.target.blur() }"
+            @keydown.escape="e => { e.preventDefault(); e.target.blur() }" ref="input"
             :value="data[currentSentenceId.value].strings.find(string => string.name == tasks[selectedTaskId.value].output_index).string == '_' ? '' : data[currentSentenceId.value].strings.find(string => string.name == tasks[selectedTaskId.value].output_index).string"
             @keydown.stop="" @input="event => setString(event)" placeholder="..."
             class="bg-gray-100 rounded-md outline-none p-4 w-full overflow-scroll resize-none text-sm" />

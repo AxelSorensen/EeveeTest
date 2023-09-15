@@ -4,20 +4,19 @@
   <div v-if="searchBarOpen.value" class=" bg-white z-[1] rounded-md absolute shadow-lg p-4 pb-0" ref="search"
     :style="{ top: position.y + 'px', left: position.x + 'px' }">
     <div class="flex justify-between items-center">
-
       <p class="text-gray-400 text-xs mb-2" for="">Select a label</p>
       <div class="flex gap-2 items-center">
-        <p @click="searchContains = false; $refs.search_input.focus()"
-          :class="!searchContains ? 'bg-purple-400 text-white' : 'hover:bg-gray-100'"
+        <p @click="searchContains.value = false; $refs.search_input.focus()"
+          :class="!searchContains.value ? 'bg-purple-400 text-white' : 'hover:bg-gray-100'"
           class="text-gray-400 cursor-pointer  text-xs mb-2 p-1 rounded-md" for="">..a
         </p>
-        <p @click="searchContains = true; $refs.search_input.focus()"
-          :class="searchContains ? 'bg-purple-400 text-white' : 'hover:bg-gray-100'"
+        <p @click="searchContains.value = true; $refs.search_input.focus()"
+          :class="searchContains.value ? 'bg-purple-400 text-white' : 'hover:bg-gray-100'"
           class="text-gray-400 cursor-pointer text-xs mb-2 p-1 rounded-md" for="">..a..
         </p>
       </div>
     </div>
-    <input @input="listIndex.value = 0" ref="search_input" v-model="search" type="text"
+    <input @input="listIndex.value = 0" ref="search_input" v-model="search.value" type="text"
       class="w-[87%] outline-none border-b-2 border-purple-500 h-10 mb-4">
     <div class="divide-y flex flex-col h-32 overflow-scroll w-full">
       <div @mouseover="listIndex.value = index" v-for="label, index in  filteredLabels "
@@ -93,10 +92,8 @@ export default {
     return {
       spanClicked: false,
       position: { x: 0, y: 0 },
-      search: '',
       start: null,
       end: null,
-      searchContains: true,
       searchMode: this.tasks[this.selectedTaskId.value]?.labels.length > 9
 
     }
@@ -110,6 +107,9 @@ export default {
     selectedWordId: Object,
     searchBarOpen: Object,
     listIndex: Object,
+    searchContains: Object,
+    search: Object,
+    filteredLabels: Array,
   },
   methods: {
     clickAway(event) {
@@ -117,7 +117,7 @@ export default {
 
       if (!elementToCheck?.contains(event.target)) {
         this.word_index = null
-        this.search = ''
+        this.search.value = ''
         this.searchBarOpen.value = false
 
       }
@@ -195,7 +195,7 @@ export default {
     addLabel() {
       if (this.filteredLabels[this.listIndex.value]) {
         this.setLabel(this.filteredLabels[this.listIndex.value])
-        this.search = ''
+        this.search.value = ''
         this.searchBarOpen.value = false
         this.listIndex.value = 0
         this.word_index = undefined
@@ -211,22 +211,14 @@ export default {
       if (event.keyCode == 27) {
         this.start = null
         this.end = null
-        this.search = ''
+        this.search.value = ''
         this.searchBarOpen.value = false
       }
 
     },
 
   },
-  computed: {
-    filteredLabels() {
-      if (!this.searchContains) {
-        return this.tasks[this.selectedTaskId.value].labels.filter(label => label.toLowerCase().startsWith(this.search.toLowerCase()))
-      }
-      return this.tasks[this.selectedTaskId.value].labels.filter(label => label.toLowerCase().includes(this.search.toLowerCase()))
 
-    }
-  },
   created() {
     window.addEventListener("click", this.clickAway);
     window.addEventListener("keydown", this.handleKeyDown);

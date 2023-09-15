@@ -26,11 +26,13 @@ export default {
       taskTypes: [{ name: 'seq', isWordLevel: true }, { name: 'class', isWordLevel: false }, { name: 'seq2seq', isWordLevel: false }, { name: 'seq_bio', isWordLevel: true }],
       searchingSentence: { value: false },
       fileName: { value: null },
+      searchBarOpen: { value: false }
     };
   },
   methods: {
     clearData() {
       this.data = []
+      this.currentSentenceId.value = 0
     },
     async loadHFData() {
 
@@ -45,16 +47,18 @@ export default {
       })
     },
     nextSentence() {
-      if (this.currentSentenceId.value < this.data.length - 2) {
+      if (this.currentSentenceId.value < this.data.length - 2 && !this.searchBarOpen.value) {
         this.currentSentenceId.value++
         this.selectedWordId.value = 0
+
       }
 
     },
     prevSentence() {
-      if (this.currentSentenceId.value > 0) {
+      if (this.currentSentenceId.value > 0 && !this.searchBarOpen.value) {
         this.currentSentenceId.value--
         this.selectedWordId.value = 0
+
       }
     },
     searchSentence(e) {
@@ -212,7 +216,7 @@ export default {
 
               this.data = data.map(sentence => {
                 const strings = (sentence.match(/#[^\n]*/g)?.map(string => {
-                  console.log(string)
+
                   return { name: string.split('=')[0]?.trim(), string: string.split('=')[1]?.trim() }
                 })) ?? [];
                 const rows = sentence.split("\n")
@@ -227,8 +231,8 @@ export default {
                 return { strings: strings, words: words };
               });
             } catch (error) {
-              console.log(error)
-              // alert('Could not import the selected file. Make sure that the content aligns with the .conll format.')
+
+              alert('Could not import the selected file. Make sure that the content aligns with the .conll format.')
             }
 
           }
@@ -310,10 +314,11 @@ export default {
       </div>
 
       <div v-if="page.name == 'annotate'">
-        <Annotate :selectedWordId="selectedWordId" :searchingSentence="searchingSentence" :page="page" :data="data"
-          :tasks="tasks" :selectedTaskId="selectedTaskId" @setLabel="setLabel" :selectedLabelId="selectedLabelId"
-          @nextSentence="nextSentence" @prevSentence="prevSentence" :currentSentenceId="currentSentenceId"
-          @nextTask="nextTask" @prevTask="prevTask" @searchSentence="searchSentence" />
+        <Annotate ref="annotate" :selectedWordId="selectedWordId" :searchingSentence="searchingSentence" :page="page"
+          :data="data" :tasks="tasks" :selectedTaskId="selectedTaskId" @setLabel="setLabel"
+          :selectedLabelId="selectedLabelId" @nextSentence="nextSentence" @prevSentence="prevSentence"
+          :currentSentenceId="currentSentenceId" @nextTask="nextTask" @prevTask="prevTask"
+          @searchSentence="searchSentence" :searchBarOpen="searchBarOpen" />
       </div>
     </div>
   </div>
