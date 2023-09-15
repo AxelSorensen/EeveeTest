@@ -16,9 +16,9 @@ export default {
         const date = new Date()
 
         let dateString = ' ('
-        dateString += date.toLocaleDateString();
-        dateString += '-'
-        dateString += date.toLocaleTimeString();
+        dateString += date.toLocaleDateString().replaceAll('.', '-');
+        dateString += ' - '
+        dateString += date.toLocaleTimeString().replaceAll('.', ':');
         dateString += ')'
         this.modal.time = dateString
         return dateString
