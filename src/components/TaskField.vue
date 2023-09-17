@@ -62,7 +62,7 @@ export default {
 </script>
 
 <template>
-  <div class="grid-rows-[40px,1fr] px-10 overflow-scroll">
+  <div class="grid-rows-[40px,1fr] px-10">
     <div class="divide-y pb-2" v-if="tasks.length > 0">
 
       <div class="h-6"></div>

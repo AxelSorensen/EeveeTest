@@ -209,8 +209,7 @@ export default {
 
       }
       if (event.keyCode == 27) {
-        this.start = null
-        this.end = null
+        this.word_index = null
         this.search.value = ''
         this.searchBarOpen.value = false
       }

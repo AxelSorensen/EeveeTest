@@ -123,9 +123,9 @@ export default {
     }
   },
   created() {
-    this.timer = setInterval(() => {
-      alert("Remember to export the annotation file continuously so you don't risk loosing your progress")
-    }, 600000)
+    // this.timer = setInterval(() => {
+    //   alert("Remember to export the annotation file continuously so you don't risk loosing your progress")
+    // }, 600000)
     window.addEventListener("keydown", this.handleKeyDown);
 
   },

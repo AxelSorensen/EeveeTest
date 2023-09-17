@@ -30,6 +30,15 @@ export default {
     };
   },
   methods: {
+    handleKeyDown(event) {
+      if (event.keyCode == 39 && this.currentSentenceId.value < this.data.length) {
+        this.nextSentence()
+      }
+
+      if (event.keyCode == 37 && this.currentSentenceId.value > 0) {
+        this.prevSentence()
+      }
+    },
     clearData() {
       this.data = []
       this.currentSentenceId.value = 0
@@ -253,7 +262,7 @@ export default {
     },
     exportTaskFile() {
       let file = JSON.stringify(this.tasks)
-      this.$refs.myModal.createModal('Export task file', `What would you like to name the file?`, [{ text: 'Cancel', action: () => this.$refs.myModal.modal.isOpen = false }, { text: 'Save file', action: () => { this.download(file, this.$refs.myModal.modal.input_text + '.json', 'json'); this.$refs.myModal.modal.isOpen = false }, color: 'bg-purple-500 hover:bg-purple-600' }], true, 'json')
+      this.$refs.myModal.createModal('Export task file', `What would you like to name the file?`, [{ text: 'Cancel', action: () => this.$refs.myModal.modal.isOpen = false }, { text: 'Save file', action: () => { this.download(file, this.fileName.value + '.json', 'json'); this.$refs.myModal.modal.isOpen = false }, color: 'bg-purple-500 hover:bg-purple-600' }], true, 'json')
 
 
     },
@@ -273,11 +282,16 @@ export default {
     },
   },
   created() {
+    // window.addEventListener("keydown", this.handleKeyDown);
     window.addEventListener("beforeunload", function (e) {
       e.preventDefault();
       e.returnValue = "";
     });
   },
+  // beforeUnmount() {
+  //   window.removeEventListener("keydown", this.handleKeyDown);
+
+  // },
   mounted() {
     setInterval(() => {
       this.time++
@@ -299,7 +313,7 @@ export default {
         @exportTaskFile="exportTaskFile" @deleteTask="deleteTask" @exportFile="exportFile"
         @importTaskFile="importTaskFile" :data="data" :page="page" :pages="pages" :tasksAreFilled="tasksAreFilled"
         :fileName="fileName" />
-      <div v-if="page.name == 'config'" class="grid grid-rows-[1fr,60px,minmax(0,.5fr)]">
+      <div v-if="page.name == 'config'" class="grid grid-rows-[1fr,60px,minmax(0,1fr)]">
         <TaskField ref="taskfield" :tasks="tasks" :selectedTaskId="selectedTaskId" @addLabel="addLabel" :label="label"
           @deleteLabel="deleteLabel" :data="data" :taskTypes="taskTypes" @importLabels="importLabels"
           :showStrings="showStrings" />
