@@ -3,13 +3,15 @@ import Class from '../tasks/Class.vue';
 import Seq from '../tasks/Seq.vue';
 import SeqBio from '../tasks/SeqBio.vue';
 import Seq2Seq from '../tasks/Seq2Seq.vue';
+import { timer } from 'd3';
 export default {
   data() {
     return {
       time: null,
       listIndex: { value: 0 },
       flag: false,
-      timer: null,
+      timer_start: new Date(),
+      timer_stop: null,
       searchMode: false,
       searchContains: { value: false },
       search: { value: '' }
@@ -27,6 +29,9 @@ export default {
     searchBarOpen: Object,
   },
   methods: {
+    timeCounter() {
+
+    },
     jumpToProgress() {
       for (let i = 0; i < this.data.length; i++) {
         const status = this.data[i].strings.find(string => string.name == '# status').string
@@ -113,6 +118,29 @@ export default {
 
     },
   },
+  watch: {
+    currentSentenceId: {
+      handler(newVal, oldVal) {  // here having access to the new and old value
+        // do stuff
+        this.timer_stop = new Date()
+        try {
+          this.data[oldVal?.value - 1].strings.find(string => string.name == '# time (ms)').string += this.timer_stop - this.timer_start
+        } catch (error) {
+
+        }
+
+        this.timer_start = new Date()
+
+      },
+      deep: true,
+      /*
+          Also very important the immediate in case you need it,
+          the callback will be called immediately after the start
+          of the observation
+      */
+      immediate: true
+    }
+  },
   computed: {
     filteredLabels() {
       if (!this.searchContains.value) {
@@ -139,6 +167,7 @@ export default {
 </script>
 
 <template>
+  {{ currentSentenceId.value }}
   <div class="grid grid-rows-[fit-content(20px),1fr,200px] items-center bg-gray-200 h-screen justify-between">
     <div class="flex gap-8 p-4 px-8 items-center">
       <div class="flex gap-2 flex-1 items-center">

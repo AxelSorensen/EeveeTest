@@ -213,6 +213,9 @@ export default {
                 if (!strings.some(string => string.name == '# status')) {
                   strings.push({ name: '# status', string: '_' })
                 }
+                if (!strings.some(string => string.name == '# time (ms)')) {
+                  strings.push({ name: '# time (ms)', string: '_' })
+                }
                 return { strings: strings, words: words };
               })
             } catch (error) {
@@ -236,6 +239,9 @@ export default {
                 });
                 if (!strings.some(string => string.name == '# status')) {
                   strings.push({ name: '# status', string: '_' })
+                }
+                if (!strings.some(string => string.name == '# time (ms)')) {
+                  strings.push({ name: '# time (ms)', string: 0 })
                 }
                 return { strings: strings, words: words };
               });

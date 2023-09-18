@@ -9,7 +9,7 @@
       <div class="flex gap-2 items-center">
         <p @click="searchContains.value = false; $refs.search_input.focus()"
           :class="!searchContains.value ? 'bg-purple-400 text-white' : 'hover:bg-gray-100'"
-          class="text-gray-400 cursor-pointer  text-xs mb-2 p-1 rounded-md" for="">..a
+          class="text-gray-400 cursor-pointer  text-xs mb-2 p-1 rounded-md" for="">a..
         </p>
         <p @click="searchContains.value = true; $refs.search_input.focus()"
           :class="searchContains.value ? 'bg-purple-400 text-white' : 'hover:bg-gray-100'"
@@ -271,7 +271,15 @@ export default {
     },
     handleKeyDown(event) {
       if (event.keyCode == 13) {
-        this.addLabel()
+        if (this.searchMode) {
+          if (this.searchBarOpen.value) {
+            this.addLabel()
+          }
+
+        } else {
+          this.addLabel()
+        }
+
 
 
       }
