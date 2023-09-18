@@ -14,6 +14,7 @@ export default {
     pages: Array,
     tasksAreFilled: Boolean,
     selectedLabelId: Object,
+    currentSentenceId: Object,
   },
   methods: {
     Annotate() {
@@ -75,6 +76,8 @@ export default {
             :class="{ 'opacity-50 pointer-events-none': data.length == 0 || tasks.length == 0 }" @click="Annotate">
             Annotate<font-awesome-icon icon="fa-solid fa-pencil-square" class="text-xl" /></div>
 
+          <p v-if="currentSentenceId.value == data.length - 2" class="text-red-500 text-xs">*Remember to export annotation
+            file</p>
           <div
             class="text-gray-500 bg-gray-200 w-full h-10 p-4 text-sm rounded-md items-center justify-between gap-2 flex hover:bg-gray-300 cursor-pointer"
             :class="{ 'opacity-50 pointer-events-none': data.length == 0 }" @click="$emit('exportFile')">

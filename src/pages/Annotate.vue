@@ -3,7 +3,6 @@ import Class from '../tasks/Class.vue';
 import Seq from '../tasks/Seq.vue';
 import SeqBio from '../tasks/SeqBio.vue';
 import Seq2Seq from '../tasks/Seq2Seq.vue';
-import { timer } from 'd3';
 export default {
   data() {
     return {
@@ -29,11 +28,9 @@ export default {
     searchBarOpen: Object,
   },
   methods: {
-    timeCounter() {
 
-    },
     jumpToProgress() {
-      for (let i = 0; i < this.data.length; i++) {
+      for (let i = 0; i < this.data.length - 1; i++) {
         const status = this.data[i].strings.find(string => string.name == '# status').string
         if (status == '_') {
           this.currentSentenceId.value = i
@@ -45,7 +42,15 @@ export default {
     },
     setStatus(value) {
       this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string = value
-      if (value != '_') {
+      if (this.currentSentenceId.value == this.data.length - 2) {
+        this.timer_stop = new Date()
+        try {
+          this.data[this.currentSentenceId.value].strings.find(string => string.name == '# time (ms)').string += this.timer_stop - this.timer_start
+        } catch (error) {
+
+        }
+      }
+      if (value != '_' && this.currentSentenceId.value != this.data.length - 2) {
         window.removeEventListener('keydown', this.handleKeyDown);
         setTimeout(() => {
           this.currentSentenceId.value++
@@ -175,7 +180,7 @@ export default {
 
           <div @click="this.currentSentenceId.value = index"
             :class="index == currentSentenceId.value ? 'bg-white' : this.data[index].strings.find(string => string.name == '# status').string == 'accepted' ? 'bg-green-400' : this.data[index].strings.find(string => string.name == '# status').string == 'rejected' ? 'bg-red-400' : this.data[index].strings.find(string => string.name == '# status').string == 'unsure' ? 'bg-yellow-400' : null"
-            v-for="(item, index) in  data" class="flex-grow bg-gray-300">
+            v-for="(item, index) in  data.slice(0, -1)" class="flex-grow bg-gray-300">
           </div>
 
 
@@ -245,7 +250,7 @@ export default {
             :class="{ 'ring ring-offset-2 ring-yellow-400 hover:bg-yellow-400': this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string == 'unsure' }" />
         </div>
         <div @click="setStatus('_')">
-          <font-awesome-icon title="Correct" icon="fa-solid fa-ban"
+          <font-awesome-icon title="Clear" icon="fa-solid fa-ban"
             class="bg-gray-100 p-4 rounded-md hover:bg-gray-200 cursor-pointer text-gray-600" />
         </div>
 

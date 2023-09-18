@@ -75,7 +75,7 @@ export default {
         this.searchingSentence.value = false
         return
       }
-      if (parseInt(e.target.value) > this.data.length) {
+      if (parseInt(e.target.value) > this.data.length - 2) {
         this.currentSentenceId.value = this.data.length - 2
       } else if (parseInt(e.target.value) < 1) {
         this.currentSentenceId.value = 0
@@ -318,7 +318,7 @@ export default {
       <SideBar :tasks="tasks" :selectedLabelId="selectedLabelId" :selectedTaskId="selectedTaskId" @addTask="addTask"
         @exportTaskFile="exportTaskFile" @deleteTask="deleteTask" @exportFile="exportFile"
         @importTaskFile="importTaskFile" :data="data" :page="page" :pages="pages" :tasksAreFilled="tasksAreFilled"
-        :fileName="fileName" />
+        :fileName="fileName" :currentSentenceId="currentSentenceId" />
       <div v-if="page.name == 'config'" class="grid grid-rows-[1fr,60px,minmax(0,1fr)]">
         <TaskField ref="taskfield" :tasks="tasks" :selectedTaskId="selectedTaskId" @addLabel="addLabel" :label="label"
           @deleteLabel="deleteLabel" :data="data" :taskTypes="taskTypes" @importLabels="importLabels"

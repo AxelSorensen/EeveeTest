@@ -153,6 +153,9 @@ export default {
       this.start = null
       this.end = null
       this.data[this.currentSentenceId.value].words[index][this.tasks[this.selectedTaskId.value].output_index] = 'O'
+      if (this.data[this.currentSentenceId.value].words.length == 1) {
+        return
+      }
       index++;
       while (this.data[this.currentSentenceId.value].words[index][this.tasks[this.selectedTaskId.value].output_index][0] != 'O' && this.data[this.currentSentenceId.value].words[index]?.[this.tasks[this.selectedTaskId.value].output_index][0] != 'B') {
         this.data[this.currentSentenceId.value].words[index][this.tasks[this.selectedTaskId.value].output_index] = 'O'
