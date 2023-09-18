@@ -167,7 +167,6 @@ export default {
 </script>
 
 <template>
-  {{ currentSentenceId.value }}
   <div class="grid grid-rows-[fit-content(20px),1fr,200px] items-center bg-gray-200 h-screen justify-between">
     <div class="flex gap-8 p-4 px-8 items-center">
       <div class="flex gap-2 flex-1 items-center">
