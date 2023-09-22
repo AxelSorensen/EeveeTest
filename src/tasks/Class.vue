@@ -19,7 +19,7 @@
     </div>
     <div :class="!searchMode ? 'rounded-b-md' : null" class="justify-center items-center flex bg-white flex-col">
       <div v-if="data.length > 0" class="flex justify-center items-end  rounded-b-md gap-1 flex-wrap gap-y-4 m-8">
-        <span v-for="word in data[currentSentenceId.value]?.words" class="select-none text-center">
+        <span v-for="word in data[currentSentenceId.value]?.words" class="text-center">
           {{ word[tasks[selectedTaskId.value].input_index] }}
         </span>
       </div>
@@ -41,7 +41,7 @@
         :class="(tasks[selectedTaskId.value].labels.includes(data[currentSentenceId.value].strings.find(string => string.name
           ==
           tasks[selectedTaskId.value].output_index).string)) && !inputFocused ? 'bg-purple-500 text-white' : 'bg-white text-purple-500 ring-purple-500 ring-2'"
-        class="rounded-md p-2 px-6 font-bold text-center relative select-none w-[400px] mx-auto truncate">
+        class="rounded-md p-2 px-6 font-bold text-center relative select-none max-w-[400px] mx-auto truncate">
         {{ tasks[selectedTaskId.value].labels.includes(data[currentSentenceId.value].strings.find(string => string.name
           ==
           tasks[selectedTaskId.value].output_index).string) ?
@@ -50,49 +50,48 @@
             tasks[selectedTaskId.value].output_index).string : '?' }}
       </div>
     </div>
+    <div v-if="searchMode" ref="search_container" class="justify-center flex-col">
+      <div class=" bg-white z-[1] rounded-b-md p-4" ref="search">
+        <div class="flex justify-between items-center relative">
 
-  </div>
-
-  <div v-if="searchMode" ref="search_container" class="justify-center flex-col">
-    <div class=" bg-white z-[1] rounded-b-md p-4" ref="search">
-      <div class="flex justify-between items-center relative">
-
-        <p class="text-gray-400 text-xs mb-2 mx-auto" for="">Search for label</p>
+          <p class="text-gray-400 text-xs mb-2 mx-auto" for="">Search for label</p>
 
 
-      </div>
-      <div class="w-[400px] mx-auto">
-        <div class="flex gap-4 items-center relative">
-          <div v-if="!inputFocused" class="group cursor-pointer absolute" @click="searchMode = true;">
-            <font-awesome-icon class="pb-3 text-purple-300" icon=" fa-solid fa-search" />
-          </div>
-          <input @focus="inputFocused = true; searchBarOpen.value = true" @input="listIndex.value = 0" ref="search_input"
-            v-model="search.value" type="text" class="w-full outline-none border-b-2 border-purple-500 h-10 mb-4">
-          <div v-if="inputFocused" class="flex gap-2 items-center">
-            <p @click="searchContains.value = false; $refs.search_input.focus()"
-              :class="!searchContains.value ? 'bg-purple-400 text-white' : 'hover:bg-gray-100'"
-              class="text-gray-400 cursor-pointer  text-xs mb-2 p-1 rounded-md" for="">a..
-            </p>
-            <p @click="searchContains.value = true; $refs.search_input.focus()"
-              :class="searchContains.value ? 'bg-purple-400 text-white' : 'hover:bg-gray-100'"
-              class="text-gray-400 cursor-pointer text-xs mb-2 p-1 rounded-md" for="">..a..
-            </p>
-          </div>
         </div>
-        <div v-if="inputFocused" class="divide-y flex flex-col h-32 overflow-scroll w-full">
-          <div @mouseover="listIndex.value = index" v-for="label, index in  filteredLabels "
-            class="flex justify-between items-center text-sm p-2 w-full cursor-pointer"
-            @click="$nextTick(() => { data[currentSentenceId.value].strings.find(string => string.name == tasks[selectedTaskId.value].output_index).string = filteredLabels[index]; search.value = '' }); inputFocused = false; this.searchBarOpen.value = false"
-            :ref="index" :class="index == listIndex.value ? 'bg-gray-100 font-bold' : null">
-            <div class="bg-purple-100 text-xs w-6 rounded-full flex justify-center items-center h-6">{{
-              label[0].toLowerCase()
-            }}
+        <div class="max-w-[400px] mx-auto">
+          <div class="flex gap-4 items-center relative">
+            <div v-if="!inputFocused" class="group cursor-pointer absolute" @click="searchMode = true;">
+              <font-awesome-icon class="pb-3 text-purple-300" icon=" fa-solid fa-search" />
             </div>
-            {{
-              label }}
+            <input @focus="inputFocused = true; searchBarOpen.value = true" @input="listIndex.value = 0"
+              ref="search_input" v-model="search.value" type="text"
+              class="w-full outline-none border-b-2 border-purple-500 h-10 mb-4">
+            <div v-if="inputFocused" class="flex gap-2 items-center">
+              <p @click="searchContains.value = false; $refs.search_input.focus()"
+                :class="!searchContains.value ? 'bg-purple-400 text-white' : 'hover:bg-gray-100'"
+                class="text-gray-400 cursor-pointer  text-xs mb-2 p-1 rounded-md" for="">a..
+              </p>
+              <p @click="searchContains.value = true; $refs.search_input.focus()"
+                :class="searchContains.value ? 'bg-purple-400 text-white' : 'hover:bg-gray-100'"
+                class="text-gray-400 cursor-pointer text-xs mb-2 p-1 rounded-md" for="">..a..
+              </p>
+            </div>
           </div>
-        </div>
+          <div v-if="inputFocused" class="divide-y flex flex-col h-32 overflow-scroll w-full">
+            <div @mouseover="listIndex.value = index" v-for="label, index in  filteredLabels "
+              class="flex justify-between items-center text-sm p-2 w-full cursor-pointer"
+              @click="$nextTick(() => { data[currentSentenceId.value].strings.find(string => string.name == tasks[selectedTaskId.value].output_index).string = filteredLabels[index]; search.value = '' }); inputFocused = false; this.searchBarOpen.value = false"
+              :ref="index" :class="index == listIndex.value ? 'bg-gray-100 font-bold' : null">
+              <div class="bg-purple-100 text-xs w-6 rounded-full flex justify-center items-center h-6">{{
+                label[0].toLowerCase()
+              }}
+              </div>
+              {{
+                label }}
+            </div>
+          </div>
 
+        </div>
       </div>
     </div>
   </div>

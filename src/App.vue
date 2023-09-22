@@ -223,32 +223,31 @@ export default {
             }
 
           } else {
-            try {
-              let data = reader.result.split('\n\n')
 
-              this.data = data.map(sentence => {
-                const strings = (sentence.match(/#[^\n]*/g)?.map(string => {
+            let data = reader.result.split('\n\n')
 
-                  return { name: string.split('=')[0]?.trim(), string: string.split('=')[1]?.trim() }
-                })) ?? [];
-                const rows = sentence.split("\n")
-                const words = rows.slice(strings?.length ?? 0).map(row => {
-                  const cols = row.split("\t");
+            this.data = data.map(sentence => {
 
-                  return cols;
-                });
-                if (!strings.some(string => string.name == '# status')) {
-                  strings.push({ name: '# status', string: '_' })
-                }
-                if (!strings.some(string => string.name == '# time (ms)')) {
-                  strings.push({ name: '# time (ms)', string: 0 })
-                }
-                return { strings: strings, words: words };
+              const strings = (sentence.split('\n').filter(sent => !sent.match(/.*\t.*/g))?.map(string => {
+                return { name: string.split('=')[0]?.trim(), string: string.split('=')[1]?.trim() }
+              })) ?? [];
+              console.log(strings)
+
+              const rows = sentence.split("\n")
+              const words = rows.slice(strings?.length ?? 0).map(row => {
+                const cols = row.split("\t");
+
+                return cols;
               });
-            } catch (error) {
+              if (!strings.some(string => string.name == '# status')) {
+                strings.push({ name: '# status', string: '_' })
+              }
+              if (!strings.some(string => string.name == '# time (ms)')) {
+                strings.push({ name: '# time (ms)', string: 0 })
+              }
+              return { strings: strings, words: words };
+            });
 
-              alert('Could not import the selected file. Make sure that the content aligns with the .conll format.')
-            }
 
           }
 
