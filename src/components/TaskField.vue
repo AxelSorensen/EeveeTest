@@ -134,7 +134,7 @@ export default {
           </div>
           <div class="flex flex-col py-4">
             <div class="flex relative justify-center">
-              <label class=" relative text-center text-sm font-semibold text-gray-500 mb-2" for="">Default value</label>
+              <label class=" relative text-center text-sm font-semibold text-gray-500 mb-2" for="">Default label</label>
 
             </div>
             <div class="flex gap-2 text-sm justify-evenly w-full">
@@ -144,7 +144,7 @@ export default {
                   :placeholder="tasks[selectedTaskId.value].type.name == 'seq_bio' ? 'O' : '_'">
                 <div @click="setDefaultValue"
                   class="text-sm bg-gray-200 text-gray-500 p-2 rounded-sm hover:bg-gray-300 cursor-pointer whitespace-nowrap">
-                  Set value</div>
+                  Set label</div>
               </div>
 
 

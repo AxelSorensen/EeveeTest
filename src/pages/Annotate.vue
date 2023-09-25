@@ -41,7 +41,7 @@ export default {
 
     },
     setStatus(value) {
-      this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string = value
+      this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string[this.selectedTaskId.value] = value
       if (this.currentSentenceId.value == this.data.length - 2) {
         this.timer_stop = new Date()
         try {
@@ -53,7 +53,12 @@ export default {
       if (value != '_' && this.currentSentenceId.value != this.data.length - 2) {
         window.removeEventListener('keydown', this.handleKeyDown);
         setTimeout(() => {
-          this.currentSentenceId.value++
+          if (this.selectedTaskId.value < this.tasks.length - 1) {
+            this.selectedTaskId.value++
+          } else {
+            this.currentSentenceId.value++
+          }
+
           window.addEventListener('keydown', this.handleKeyDown);
         }, 200);
       }
@@ -127,13 +132,13 @@ export default {
     currentSentenceId: {
       handler(newVal, oldVal) {  // here having access to the new and old value
         // do stuff
+        this.selectedTaskId.value = 0
         this.timer_stop = new Date()
         try {
           this.data[oldVal?.value - 1].strings.find(string => string.name == '# time (ms)').string += this.timer_stop - this.timer_start
         } catch (error) {
 
         }
-
         this.timer_start = new Date()
 
       },
@@ -179,7 +184,7 @@ export default {
         <div class="bg-gray-300 overflow-hidden rounded-full flex-1 h-4 flex">
 
           <div @click="this.currentSentenceId.value = index"
-            :class="index == currentSentenceId.value ? 'bg-white' : this.data[index].strings.find(string => string.name == '# status').string == 'accepted' ? 'bg-green-400' : this.data[index].strings.find(string => string.name == '# status').string == 'rejected' ? 'bg-red-400' : this.data[index].strings.find(string => string.name == '# status').string == 'unsure' ? 'bg-yellow-400' : null"
+            :class="index == currentSentenceId.value ? 'bg-white' : this.data[index].strings.find(string => string.name == '# status').string[selectedTaskId.value] == 'accepted' ? 'bg-green-400' : this.data[index].strings.find(string => string.name == '# status').string[selectedTaskId.value] == 'rejected' ? 'bg-red-400' : this.data[index].strings.find(string => string.name == '# status').string[selectedTaskId.value] == 'unsure' ? 'bg-yellow-400' : null"
             v-for="(item, index) in  data.slice(0, -1)" class="flex-grow bg-gray-300">
           </div>
 
@@ -194,7 +199,7 @@ export default {
     </div>
     <div class="flex flex-col gap-6 w-[calc(100vw-250px)] overflow-hidden">
       <div class="border-4 m-auto rounded-xl"
-        :class="this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string == 'accepted' ? 'border-green-400 border-4 rounded-sm' : this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string == 'rejected' ? 'border-red-400 border-4 rounded-sm' : this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string == 'unsure' ? 'border-yellow-400 border-4 rounded-sm' : null">
+        :class="this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string[selectedTaskId.value] == 'accepted' ? 'border-green-400 border-4 rounded-sm' : this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string[selectedTaskId.value] == 'rejected' ? 'border-red-400 border-4 rounded-sm' : this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string[selectedTaskId.value] == 'unsure' ? 'border-yellow-400 border-4 rounded-sm' : null">
         <Seq ref="seq" v-if="tasks[selectedTaskId.value]?.type.name == 'seq'" :data="data" :tasks="tasks"
           :selectedLabelId="selectedLabelId" :selectedTaskId="selectedTaskId" :selectedWordId="selectedWordId"
           :currentSentenceId="currentSentenceId" :searchBarOpen="searchBarOpen" :listIndex="listIndex"

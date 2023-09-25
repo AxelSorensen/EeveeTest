@@ -156,10 +156,10 @@ export default {
       if (this.data[this.currentSentenceId.value].words.length == 1) {
         return
       }
-      if(index != this.data[this.currentSentenceId.value].words.length -1) {
+      if (index != this.data[this.currentSentenceId.value].words.length - 1) {
         index++;
       }
-   
+
       while (this.data[this.currentSentenceId.value].words[index][this.tasks[this.selectedTaskId.value].output_index][0] != 'O' && this.data[this.currentSentenceId.value].words[index]?.[this.tasks[this.selectedTaskId.value].output_index][0] != 'B') {
         this.data[this.currentSentenceId.value].words[index][this.tasks[this.selectedTaskId.value].output_index] = 'O'
         index++;

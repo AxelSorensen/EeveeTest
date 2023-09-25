@@ -23,7 +23,7 @@ export default {
       page: { name: 'front' },
       selectedLabelId: { value: 0 },
       selectedWordId: { value: 0 },
-      taskTypes: [{ name: 'seq', isWordLevel: true }, { name: 'class', isWordLevel: false }, { name: 'seq2seq', isWordLevel: false }, { name: 'seq_bio', isWordLevel: true }],
+      taskTypes: [{ name: 'seq', isWordLevel: true }, { name: 'seq_bio', isWordLevel: true }, { name: 'class', isWordLevel: false }, { name: 'seq2seq', isWordLevel: false }],
       searchingSentence: { value: false },
       fileName: { value: null },
       searchBarOpen: { value: false }
@@ -181,7 +181,11 @@ export default {
         reader.addEventListener("loadend", () => {
           let result = JSON.parse(reader.result)
           if (isObjectMatchingStructure(result[0])) {
+            result.map((res, id) => {
+              res['id'] = id
+            })
             this.tasks = result
+            console.log(result)
             this.selectedTaskId.value = 0
           } else {
             alert('The chosen file does not follow the correct structure of a task file.')
@@ -211,10 +215,10 @@ export default {
                 });
                 const strings = [{ name: '# sent_id', string: index }, { name: '# text', string: sentence }]
                 if (!strings.some(string => string.name == '# status')) {
-                  strings.push({ name: '# status', string: '_' })
+                  strings.push({ name: '# status', string: {} })
                 }
                 if (!strings.some(string => string.name == '# time (ms)')) {
-                  strings.push({ name: '# time (ms)', string: '_' })
+                  strings.push({ name: '# time (ms)', string: {} })
                 }
                 return { strings: strings, words: words };
               })
@@ -240,10 +244,10 @@ export default {
                 return cols;
               });
               if (!strings.some(string => string.name == '# status')) {
-                strings.push({ name: '# status', string: '_' })
+                strings.push({ name: '# status', string: {} })
               }
               if (!strings.some(string => string.name == '# time (ms)')) {
-                strings.push({ name: '# time (ms)', string: 0 })
+                strings.push({ name: '# time (ms)', string: {} })
               }
               return { strings: strings, words: words };
             });
@@ -331,7 +335,6 @@ export default {
           @updateRowName="updateRowName" :currentSentenceId="currentSentenceId" :tasks="tasks" @loadHFData="loadHFData"
           :dataName="dataName" />
       </div>
-
       <div v-if="page.name == 'annotate'">
         <Annotate ref="annotate" :selectedWordId="selectedWordId" :searchingSentence="searchingSentence" :page="page"
           :data="data" :tasks="tasks" :selectedTaskId="selectedTaskId" @setLabel="setLabel"
