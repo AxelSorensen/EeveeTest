@@ -218,7 +218,7 @@ export default {
                   strings.push({ name: '# status', string: {} })
                 }
                 if (!strings.some(string => string.name == '# time (ms)')) {
-                  strings.push({ name: '# time (ms)', string: {} })
+                  strings.push({ name: '# time (ms)', string: 0 })
                 }
                 return { strings: strings, words: words };
               })
@@ -247,7 +247,7 @@ export default {
                 strings.push({ name: '# status', string: {} })
               }
               if (!strings.some(string => string.name == '# time (ms)')) {
-                strings.push({ name: '# time (ms)', string: {} })
+                strings.push({ name: '# time (ms)', string: 0 })
               }
               return { strings: strings, words: words };
             });
