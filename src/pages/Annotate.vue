@@ -50,13 +50,16 @@ export default {
 
         }
       }
-      if (value != '_' && this.currentSentenceId.value != this.data.length - 2) {
+      if (value != '_' && this.currentSentenceId.value != this.data.length - 1) {
         window.removeEventListener('keydown', this.handleKeyDown);
         setTimeout(() => {
           if (this.selectedTaskId.value < this.tasks.length - 1) {
             this.selectedTaskId.value++
           } else {
-            this.currentSentenceId.value++
+            if (this.currentSentenceId.value != this.data.length - 1) {
+              this.currentSentenceId.value++
+            }
+
           }
 
           window.addEventListener('keydown', this.handleKeyDown);
