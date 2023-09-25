@@ -57,6 +57,7 @@ export default {
             this.selectedTaskId.value++
           } else {
             if (this.currentSentenceId.value != this.data.length - 1) {
+              this.selectedTaskId.value = 0
               this.currentSentenceId.value++
             }
 
@@ -135,7 +136,6 @@ export default {
     currentSentenceId: {
       handler(newVal, oldVal) {  // here having access to the new and old value
         // do stuff
-        this.selectedTaskId.value = 0
         this.timer_stop = new Date()
         try {
           this.data[oldVal?.value - 1].strings.find(string => string.name == '# time (ms)').string += this.timer_stop - this.timer_start
