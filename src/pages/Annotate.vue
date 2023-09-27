@@ -41,7 +41,9 @@ export default {
 
     },
     setStatus(value) {
-      this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string[this.selectedTaskId.value] = value
+      const new_val = JSON.parse(this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string)
+      new_val[this.selectedTaskId.value] = value
+      this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string = JSON.stringify(new_val)
       if (this.currentSentenceId.value == this.data.length - 2) {
         this.timer_stop = new Date()
         try {
@@ -56,7 +58,7 @@ export default {
           if (this.selectedTaskId.value < this.tasks.length - 1) {
             this.selectedTaskId.value++
           } else {
-            if (this.currentSentenceId.value != this.data.length - 1) {
+            if (this.currentSentenceId.value != this.data.length - 2) {
               this.selectedTaskId.value = 0
               this.currentSentenceId.value++
             }
@@ -187,7 +189,7 @@ export default {
         <div class="bg-gray-300 overflow-hidden rounded-full flex-1 h-4 flex">
 
           <div @click="this.currentSentenceId.value = index"
-            :class="index == currentSentenceId.value ? 'bg-white' : this.data[index].strings.find(string => string.name == '# status').string[selectedTaskId.value] == 'accepted' ? 'bg-green-400' : this.data[index].strings.find(string => string.name == '# status').string[selectedTaskId.value] == 'rejected' ? 'bg-red-400' : this.data[index].strings.find(string => string.name == '# status').string[selectedTaskId.value] == 'unsure' ? 'bg-yellow-400' : null"
+            :class="index == currentSentenceId.value ? 'bg-white' : JSON.parse(this.data[index].strings.find(string => string.name == '# status').string)[selectedTaskId.value.toString()] == 'accepted' ? 'bg-green-400' : JSON.parse(this.data[index].strings.find(string => string.name == '# status').string)[selectedTaskId.value.toString()] == 'rejected' ? 'bg-red-400' : JSON.parse(this.data[index].strings.find(string => string.name == '# status').string)[selectedTaskId.value.toString()] == 'unsure' ? 'bg-yellow-400' : null"
             v-for="(item, index) in  data.slice(0, -1)" class="flex-grow bg-gray-300">
           </div>
 
@@ -202,7 +204,7 @@ export default {
     </div>
     <div class="flex flex-col gap-6 w-[calc(100vw-250px)] overflow-hidden">
       <div class="border-4 m-auto rounded-xl"
-        :class="this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string[selectedTaskId.value] == 'accepted' ? 'border-green-400 border-4 rounded-sm' : this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string[selectedTaskId.value] == 'rejected' ? 'border-red-400 border-4 rounded-sm' : this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string[selectedTaskId.value] == 'unsure' ? 'border-yellow-400 border-4 rounded-sm' : null">
+        :class="JSON.parse(this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string)[selectedTaskId.value.toString()] == 'accepted' ? 'border-green-400 border-4 rounded-sm' : JSON.parse(this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string)[selectedTaskId.value.toString()] == 'rejected' ? 'border-red-400 border-4 rounded-sm' : JSON.parse(this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string)[selectedTaskId.value.toString()] == 'unsure' ? 'border-yellow-400 border-4 rounded-sm' : null">
         <Seq ref="seq" v-if="tasks[selectedTaskId.value]?.type.name == 'seq'" :data="data" :tasks="tasks"
           :selectedLabelId="selectedLabelId" :selectedTaskId="selectedTaskId" :selectedWordId="selectedWordId"
           :currentSentenceId="currentSentenceId" :searchBarOpen="searchBarOpen" :listIndex="listIndex"
@@ -245,12 +247,12 @@ export default {
         <div @click="setStatus('accepted')">
           <font-awesome-icon title="Correct" icon="fa-solid fa-check"
             class="bg-green-400 p-4 rounded-md hover:bg-green-300 cursor-pointer text-green-900"
-            :class="{ 'ring ring-offset-2 ring-green-400 hover:bg-green-400': this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string == 'accepted' }" />
+            :class="{ 'ring ring-offset-2 ring-green-400 hover:bg-green-400': JSON.parse(this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string)[selectedTaskId.value.toString()] == 'accepted' }" />
         </div>
         <div @click="setStatus('rejected')">
           <font-awesome-icon title="Wrong" icon="fa-solid fa-xmark"
             class="bg-red-400 p-4 rounded-md hover:bg-red-300 cursor-pointer text-red-900"
-            :class="{ 'ring ring-offset-2 ring-red-400 hover:bg-red-400': this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string == 'rejected' }" />
+            :class="{ 'ring ring-offset-2 ring-red-400 hover:bg-red-400': JSON.parse(this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string)[selectedTaskId.value.toString()] == 'rejected' }" />
         </div>
         <div @click="setStatus('unsure')">
           <font-awesome-icon title="Unsure" icon="fa-solid fa-question"

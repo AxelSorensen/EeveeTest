@@ -215,7 +215,7 @@ export default {
                 });
                 const strings = [{ name: '# sent_id', string: index }, { name: '# text', string: sentence }]
                 if (!strings.some(string => string.name == '# status')) {
-                  strings.push({ name: '# status', string: {} })
+                  strings.push({ name: '# status', string: '{}' })
                 }
                 if (!strings.some(string => string.name == '# time (ms)')) {
                   strings.push({ name: '# time (ms)', string: 0 })
@@ -244,7 +244,7 @@ export default {
                 return cols;
               });
               if (!strings.some(string => string.name == '# status')) {
-                strings.push({ name: '# status', string: {} })
+                strings.push({ name: '# status', string: '{}' })
               }
               if (!strings.some(string => string.name == '# time (ms)')) {
                 strings.push({ name: '# time (ms)', string: 0 })
