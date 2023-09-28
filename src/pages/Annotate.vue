@@ -41,13 +41,15 @@ export default {
 
     },
     setStatus(value) {
-      const new_val = JSON.parse(this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string)
+      let new_val = JSON.parse(this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string)
       new_val[this.selectedTaskId.value] = value
       this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string = JSON.stringify(new_val)
       if (this.currentSentenceId.value == this.data.length - 2) {
         this.timer_stop = new Date()
         try {
-          this.data[this.currentSentenceId.value].strings.find(string => string.name == '# time (ms)').string += this.timer_stop - this.timer_start
+          let time = parseInt(this.data[oldVal?.value].strings.find(string => string.name == '# time (ms)').string)
+          time += this.timer_stop - this.timer_start
+          this.data[oldVal?.value].strings.find(string => string.name == '# time (ms)').string = time.toString()
         } catch (error) {
 
         }
@@ -143,8 +145,9 @@ export default {
 
 
         try {
-
-          this.data[oldVal?.value].strings.find(string => string.name == '# time (ms)').string += this.timer_stop - this.timer_start
+          let time = parseInt(this.data[oldVal?.value].strings.find(string => string.name == '# time (ms)').string)
+          time += this.timer_stop - this.timer_start
+          this.data[oldVal?.value].strings.find(string => string.name == '# time (ms)').string = time.toString()
         } catch (error) {
           console.log(error)
         }
@@ -172,6 +175,7 @@ export default {
     //   alert("Remember to export the annotation file continuously so you don't risk loosing your progress")
     // }, 600000)
     window.addEventListener("keydown", this.handleKeyDown);
+
 
   },
   beforeUnmount() {
