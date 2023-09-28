@@ -134,29 +134,31 @@ export default {
 
     },
   },
+
   watch: {
-    currentSentenceId: {
+    lastSentId: {
       handler(newVal, oldVal) {  // here having access to the new and old value
         // do stuff
         this.timer_stop = new Date()
-        try {
-          this.data[oldVal?.value - 1].strings.find(string => string.name == '# time (ms)').string += this.timer_stop - this.timer_start
-        } catch (error) {
 
+
+        try {
+
+          this.data[oldVal?.value].strings.find(string => string.name == '# time (ms)').string += this.timer_stop - this.timer_start
+        } catch (error) {
+          console.log(error)
         }
         this.timer_start = new Date()
 
       },
       deep: true,
-      /*
-          Also very important the immediate in case you need it,
-          the callback will be called immediately after the start
-          of the observation
-      */
-      immediate: true
     }
   },
   computed: {
+
+    lastSentId() {
+      return Object.assign({}, this.currentSentenceId)
+    },
     filteredLabels() {
       if (!this.searchContains.value) {
         return this.tasks[this.selectedTaskId.value].labels.filter(label => label.toLowerCase().startsWith(this.search.value.toLowerCase()))

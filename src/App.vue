@@ -185,7 +185,7 @@ export default {
               res['id'] = id
             })
             this.tasks = result
-            console.log(result)
+     
             this.selectedTaskId.value = 0
           } else {
             alert('The chosen file does not follow the correct structure of a task file.')
@@ -235,7 +235,7 @@ export default {
               const strings = (sentence.split('\n').filter(sent => !sent.match(/.*\t.*/g))?.map(string => {
                 return { name: string.split('=')[0]?.trim(), string: string.split('=')[1]?.trim() }
               })) ?? [];
-              console.log(strings)
+            
 
               const rows = sentence.split("\n")
               const words = rows.slice(strings?.length ?? 0).map(row => {
