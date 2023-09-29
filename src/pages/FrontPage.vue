@@ -8,10 +8,13 @@ export default {
 
 <template>
   <div class="flex flex-col justify-center h-screen bg-gray-100 gap-20">
-    <div class="flex items-center gap-2 justify-center">
-      <h1 class="text-3xl text-purple-600 font-bold">Eevee:</h1>
-      <h1 class="text-3xl text-gray-700">A Simple Annotation Tool</h1>
-      <img class="w-10" src="../assets/Eevee.png" alt="">
+    <div>
+      <div class="flex items-center gap-2 justify-center">
+        <h1 class="text-3xl text-purple-600 font-bold">Eevee:</h1>
+        <h1 class="text-3xl text-gray-700">A Simple Annotation Tool</h1>
+        <img class="w-10" src="../assets/Eevee.png" alt="">
+      </div>
+      <p class="text-center text-gray-400 text-sm mt-2 font-medium">Version 1.0</p>
     </div>
     <div class="flex justify-center items-center flex-col gap-2">
       <div
