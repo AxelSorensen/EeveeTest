@@ -17,12 +17,12 @@
         </div>
         <p v-if="!searchingSentence.value" @click="searchingSentence.value = true; $nextTick(() => {
           $refs.sentenceSearch.focus()
-        })" class="flex">{{ currentSentenceId.value + 1 }} / {{ data.length - 1 }}</p>
+        })" class="flex">{{ currentSentenceId.value + 1 }} / {{ data.length }}</p>
         <input @keydown.enter="event => $emit('searchSentence', event)" @blur="event => $emit('searchSentence', event)"
           ref="sentenceSearch" class="w-16 rounded-md outline-none bg-gray-300 text-center"
           @change="event => $emit('searchSentence', event)" v-if="searchingSentence.value" type="text">
         <div class="cursor-pointer group p-2 m-[-8px]"
-          :class="{ 'text-gray-500 hover:text-gray-700': currentSentenceId.value < data.length - 2, 'text-gray-300 pointer-events-none': currentSentenceId.value == data.length - 2 }"
+          :class="{ 'text-gray-500 hover:text-gray-700': currentSentenceId.value < data.length - 1, 'text-gray-300 pointer-events-none': currentSentenceId.value == data.length - 1 }"
           @click="$emit('nextSentence')">
           <font-awesome-icon icon="fa-solid fa-chevron-right" />
 

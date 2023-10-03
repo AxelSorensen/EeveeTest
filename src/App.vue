@@ -56,7 +56,7 @@ export default {
       })
     },
     nextSentence() {
-      if (this.currentSentenceId.value < this.data.length - 2 && !this.searchBarOpen.value) {
+      if (this.currentSentenceId.value < this.data.length - 1 && !this.searchBarOpen.value) {
         this.currentSentenceId.value++
         this.selectedWordId.value = 0
 
@@ -75,8 +75,8 @@ export default {
         this.searchingSentence.value = false
         return
       }
-      if (parseInt(e.target.value) > this.data.length - 2) {
-        this.currentSentenceId.value = this.data.length - 2
+      if (parseInt(e.target.value) > this.data.length - 1) {
+        this.currentSentenceId.value = this.data.length - 1
       } else if (parseInt(e.target.value) < 1) {
         this.currentSentenceId.value = 0
       }
@@ -229,10 +229,10 @@ export default {
           } else {
 
             let data = reader.result.split('\n\n')
+            data = data.filter(d => d != '')
 
             this.data = data.map(sentence => {
-
-              const strings = (sentence.split('\n').filter(sent => !sent.match(/.*\t.*/g))?.map(string => {
+              const strings = (sentence.split('\n').filter(sent => !sent.match(/.*\t.*/g) && sent != '')?.map(string => {
                 return { name: string.split('=')[0]?.trim(), string: string.split('=')[1]?.trim() }
               })) ?? [];
 
@@ -251,8 +251,6 @@ export default {
               }
               return { strings: strings, words: words };
             });
-
-
           }
 
 

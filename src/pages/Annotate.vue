@@ -31,8 +31,9 @@ export default {
 
     jumpToProgress() {
       for (let i = 0; i < this.data.length - 1; i++) {
-        const status = this.data[i].strings.find(string => string.name == '# status').string
-        if (status == '_') {
+        const status = JSON.parse(this.data[i].strings.find(string => string.name == '# status').string)[this.selectedTaskId.value.toString()]
+        console.log(status)
+        if (status != 'accepted') {
           this.currentSentenceId.value = i
           return
         }
@@ -44,7 +45,7 @@ export default {
       let new_val = JSON.parse(this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string)
       new_val[this.selectedTaskId.value] = value
       this.data[this.currentSentenceId.value].strings.find(string => string.name == '# status').string = JSON.stringify(new_val)
-      if (this.currentSentenceId.value == this.data.length - 2) {
+      if (this.currentSentenceId.value == this.data.length - 1) {
         this.timer_stop = new Date()
         try {
           let time = parseInt(this.data[oldVal?.value].strings.find(string => string.name == '# time (ms)').string)
@@ -60,7 +61,7 @@ export default {
           if (this.selectedTaskId.value < this.tasks.length - 1) {
             this.selectedTaskId.value++
           } else {
-            if (this.currentSentenceId.value != this.data.length - 2) {
+            if (this.currentSentenceId.value != this.data.length - 1) {
               this.selectedTaskId.value = 0
               this.currentSentenceId.value++
             }
@@ -238,13 +239,13 @@ export default {
         <p v-if="!searchingSentence.value" @click="searchingSentence.value = true; $nextTick(() => {
           $refs.sentenceSearch.focus()
         })" class="flex">{{
-  currentSentenceId.value + 1 }} / {{
-    data.length - 1 }}</p>
+  currentSentenceId.value }} / {{
+    data.length }}</p>
         <input @keydown.enter="event => $emit('searchSentence', event)" @blur="event => $emit('searchSentence', event)"
           ref="sentenceSearch" class="w-16 rounded-md outline-none bg-gray-300 text-center"
           @change="event => $emit('searchSentence', event)" v-if="searchingSentence.value" type="text">
         <div class="cursor-pointer group p-2 m-[-8px]"
-          :class="{ 'text-gray-500 hover:text-gray-700': currentSentenceId.value < data.length - 2, 'text-gray-300 pointer-events-none': currentSentenceId.value == data.length - 2 }"
+          :class="{ 'text-gray-500 hover:text-gray-700': currentSentenceId.value < data.length - 1, 'text-gray-300 pointer-events-none': currentSentenceId.value == data.length }"
           @click="$emit('nextSentence')">
           <font-awesome-icon icon="fa-solid fa-chevron-right" />
         </div>
