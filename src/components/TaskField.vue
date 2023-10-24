@@ -16,7 +16,7 @@ export default {
     showStrings: Object,
   },
   methods: {
-    setDefaultValue() {
+    setValue() {
       if (this.tasks[this.selectedTaskId.value].type.isWordLevel) {
         this.data.map(data => data.words.map(word => ([
           word[this.tasks[this.selectedTaskId.value].output_index] = this.emptyValue
@@ -25,8 +25,25 @@ export default {
         this.data.map(data => data.strings.find(string => string.name == this.tasks[this.selectedTaskId.value].output_index
         ).string = this.emptyValue);
       }
+    },
+    setDefaultValue() {
+      let values = []
+      this.data.map(data => {
+        data.words.map(word => {
+          values.push(word[this.tasks[this.selectedTaskId.value].output_index])
 
+        })
+      })
+      values = new Set(values)
+      if (values.size < 2) {
+        this.setValue()
+
+      } else {
+        this.$parent.$refs.myModal.createModal('Set default value', `There are ${values.size} unique labels in this column. Are you sure you want to override them?`, [{ text: 'Cancel', action: () => this.$parent.$refs.myModal.modal.isOpen = false }, { text: 'Set value', action: () => { this.setValue(); this.$parent.$refs.myModal.modal.isOpen = false }, color: 'bg-purple-500 hover:bg-purple-600' }])
+
+      }
     }
+
   },
   computed: {
     inputInRange() {
@@ -45,10 +62,23 @@ export default {
       this.data.map(data => {
         data.words.map(word => {
           if (word[this.tasks[this.selectedTaskId.value].output_index] != '_' && word[this.tasks[this.selectedTaskId.value].output_index] != undefined) {
-            const label = word[this.tasks[this.selectedTaskId.value].output_index].split('|')
-            labels.push(...label)
-          }
 
+            if (this.tasks[this.selectedTaskId.value].type.name == 'span') {
+              const label = word[this.tasks[this.selectedTaskId.value].output_index].split('|')
+              let bio_labels = []
+              label.map(l => {
+                if (l != 'O') {
+                  bio_labels.push(l.slice(2))
+                }
+
+              })
+              labels.push(...bio_labels)
+            } else {
+              const label = word[this.tasks[this.selectedTaskId.value].output_index].split('|')
+              labels.push(...label)
+            }
+
+          }
         })
       })
       if (this.tasks[this.selectedTaskId.value].output_index != '') {
@@ -141,16 +171,17 @@ export default {
               <div class="flex gap-2 items-center relative">
                 <label>Value:</label>
                 <input v-model="emptyValue" class="bg-gray-100 outline-none w-10 p-2 rounded-sm text-center" type="text"
-                  :placeholder="tasks[selectedTaskId.value].type.name == 'seq_bio' ? 'O' : '_'">
+                  :placeholder="tasks[selectedTaskId.value].type.name == 'span' ? 'O' : '_'">
                 <div @click="setDefaultValue"
-                  class="text-sm bg-gray-200 text-gray-500 p-2 rounded-sm hover:bg-gray-300 cursor-pointer whitespace-nowrap">
+                  class="text-sm bg-gray-200 text-gray-500 p-2 rounded-sm hover:bg-gray-300 cursor-pointer whitespace-nowrap"
+                  :class="{ 'opacity-50 pointer-events-none': !emptyValue }">
                   Set label</div>
               </div>
 
 
             </div>
-            <p v-if="tasks[selectedTaskId.value].type.name == 'seq_bio'" class="text-xs text-gray-500 mt-2 w-[20ch]">
-              *Should be 'O' for seq_bio</p>
+            <p v-if="tasks[selectedTaskId.value].type.name == 'span'" class="text-xs text-gray-500 mt-2 w-[20ch]">
+              *Should be 'O' for span</p>
           </div>
         </div>
         <div>

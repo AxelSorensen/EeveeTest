@@ -97,7 +97,7 @@ export default {
         if (this.searchBarOpen.value) {
           if (this.listIndex.value > 0) {
             this.listIndex.value--
-            this.$refs?.seq_bio?.$refs?.[(this.listIndex.value).toString()][0]?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            this.$refs?.span?.$refs?.[(this.listIndex.value).toString()][0]?.scrollIntoView({ behavior: "smooth", block: "nearest" });
             this.$refs?.class?.$refs?.[(this.listIndex.value).toString()][0]?.scrollIntoView({ behavior: "smooth", block: "nearest" });
             this.$refs?.seq?.$refs?.[(this.listIndex.value).toString()][0]?.scrollIntoView({ behavior: "smooth", block: "nearest" });
 
@@ -113,7 +113,7 @@ export default {
         if (this.searchBarOpen.value) {
           if (this.listIndex.value < this.filteredLabels.length - 1) {
             this.listIndex.value++
-            this.$refs?.seq_bio?.$refs?.[(this.listIndex.value).toString()][0]?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            this.$refs?.span?.$refs?.[(this.listIndex.value).toString()][0]?.scrollIntoView({ behavior: "smooth", block: "nearest" });
             this.$refs?.class?.$refs?.[(this.listIndex.value).toString()][0]?.scrollIntoView({ behavior: "smooth", block: "nearest" });
             this.$refs?.seq?.$refs?.[(this.listIndex.value).toString()][0]?.scrollIntoView({ behavior: "smooth", block: "nearest" });
 
@@ -216,7 +216,7 @@ export default {
           :selectedLabelId="selectedLabelId" :selectedTaskId="selectedTaskId" :selectedWordId="selectedWordId"
           :currentSentenceId="currentSentenceId" :searchBarOpen="searchBarOpen" :listIndex="listIndex"
           :searchMode="searchMode" :search="search" :searchContains="searchContains" :filteredLabels="filteredLabels" />
-        <SeqBio v-if="tasks[selectedTaskId.value]?.type.name == 'seq_bio'" ref="seq_bio" :data="data" :tasks="tasks"
+        <SeqBio v-if="tasks[selectedTaskId.value]?.type.name == 'span'" ref="span" :data="data" :tasks="tasks"
           :listIndex="listIndex" :selectedLabelId="selectedLabelId" :selectedTaskId="selectedTaskId"
           :selectedWordId="selectedWordId" :currentSentenceId="currentSentenceId" :searchBarOpen="searchBarOpen"
           :searchMode="searchMode" :search="search" :searchContains="searchContains" :filteredLabels="filteredLabels" />

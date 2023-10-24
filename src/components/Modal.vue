@@ -54,14 +54,14 @@ export default {
       <div v-if="modal.input" class="p-4 pt-0 w-full flex items-center gap-2">
         <input v-model="fileName.value" class="bg-gray-100 outline-none p-2 rounded-sm w-full truncate" type="text"
           placeholder="File name">
-        <div v-if="appendDate && modal.filetype == 'conllu'"
+        <div v-if="appendDate && modal.filetype == 'conll'"
           class="pointer-events-none p-2 rounded-sm whitespace-nowrap text-gray-500">{{ addDate() }}
         </div>
         <p class="text-gray-500">.{{ modal.filetype }}</p>
 
       </div>
-      <div v-if="modal.input && modal.filetype == 'conllu'" class="px-4 flex gap-2 pb-4">
-        <p class="text-xs text-gray-500">Append datetime</p>
+      <div v-if="modal.input && modal.filetype == 'conll'" class="px-4 flex gap-2 pb-4">
+        <p class="text-xs text-gray-500">Append date and time</p>
         <input type="checkbox" v-model="appendDate" @change="addDate">
       </div>
 

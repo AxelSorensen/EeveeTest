@@ -23,7 +23,7 @@ export default {
       page: { name: 'front' },
       selectedLabelId: { value: 0 },
       selectedWordId: { value: 0 },
-      taskTypes: [{ name: 'seq', isWordLevel: true }, { name: 'seq_bio', isWordLevel: true }, { name: 'class', isWordLevel: false }, { name: 'seq2seq', isWordLevel: false }],
+      taskTypes: [{ name: 'seq', isWordLevel: true }, { name: 'span', isWordLevel: true }, { name: 'class', isWordLevel: false }, { name: 'seq2seq', isWordLevel: false }],
       searchingSentence: { value: false },
       fileName: { value: null },
       searchBarOpen: { value: false }
@@ -163,8 +163,9 @@ export default {
           return row.join('\t');
         }).join('\n')].join('\n'))
       });
+      file[this.data.length - 1] += '\n'
 
-      this.$refs.myModal.createModal('Export annotation file', `What would you like to name the file?`, [{ text: 'Cancel', action: () => this.$refs.myModal.modal.isOpen = false }, { text: 'Save file', action: () => { this.download(file.join('\n\n'), this.fileName.value + this.$refs.myModal.modal.time + '.conllu', 'conllu'); this.$refs.myModal.modal.isOpen = false }, color: 'bg-purple-500 hover:bg-purple-600' }], true, 'conllu')
+      this.$refs.myModal.createModal('Export annotation file', `What would you like to name the file?`, [{ text: 'Cancel', action: () => this.$refs.myModal.modal.isOpen = false }, { text: 'Save file', action: () => { this.download(file.join('\n\n'), this.fileName.value + this.$refs.myModal.modal.time + '.conll', 'conll'); this.$refs.myModal.modal.isOpen = false }, color: 'bg-purple-500 hover:bg-purple-600' }], true, 'conll')
 
 
     },
@@ -268,7 +269,7 @@ export default {
       a.click();
     },
     exportTaskFile() {
-      let file = JSON.stringify(this.tasks)
+      let file = JSON.stringify(this.tasks, undefined, 2)
       this.$refs.myModal.createModal('Export task file', `What would you like to name the file?`, [{ text: 'Cancel', action: () => this.$refs.myModal.modal.isOpen = false }, { text: 'Save file', action: () => { this.download(file, this.fileName.value + '.json', 'json'); this.$refs.myModal.modal.isOpen = false }, color: 'bg-purple-500 hover:bg-purple-600' }], true, 'json')
 
 
