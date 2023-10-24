@@ -46,16 +46,16 @@ export default {
 
 <template>
   <div v-if="modal.isOpen" class="w-full flex justify-center items-center h-screen absolute bg-black bg-opacity-20 z-[1]">
-    <div class="bg-white w-fit min-w-[40%] rounded-md z-[2]">
+    <div class="bg-white w-[60%] max-w-[400px] rounded-md z-[2]">
       <div class="gap-2 p-4 flex flex-col">
         <p class="font-bold text-gray-700">{{ modal.primaryText }}</p>
-        <p class="text-sm text-gray-500">{{ modal.secondaryText }}</p>
+        <p class="text-sm text-gray-500  wrap">{{ modal.secondaryText }}</p>
       </div>
       <div v-if="modal.input" class="p-4 pt-0 w-full flex items-center gap-2">
         <input v-model="fileName.value" class="bg-gray-100 outline-none p-2 rounded-sm w-full truncate" type="text"
           placeholder="File name">
         <div v-if="appendDate && modal.filetype == 'conll'"
-          class="pointer-events-none p-2 rounded-sm whitespace-nowrap text-gray-500">{{ addDate() }}
+          class="pointer-events-none rounded-sm whitespace-nowrap text-gray-500 text-xs">{{ addDate() }}
         </div>
         <p class="text-gray-500">.{{ modal.filetype }}</p>
 

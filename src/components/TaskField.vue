@@ -39,7 +39,7 @@ export default {
         this.setValue()
 
       } else {
-        this.$parent.$refs.myModal.createModal('Set default value', `There are ${values.size} unique labels in this column. Are you sure you want to override them?`, [{ text: 'Cancel', action: () => this.$parent.$refs.myModal.modal.isOpen = false }, { text: 'Set value', action: () => { this.setValue(); this.$parent.$refs.myModal.modal.isOpen = false }, color: 'bg-purple-500 hover:bg-purple-600' }])
+        this.$parent.$refs.myModal.createModal('Set default value', `Column ${this.tasks[this.selectedTaskId.value].output_index} already contains annotations (${values.size} unique values). Are you sure you want to overwrite them?`, [{ text: 'Cancel', action: () => this.$parent.$refs.myModal.modal.isOpen = false }, { text: 'Set value', action: () => { this.setValue(); this.$parent.$refs.myModal.modal.isOpen = false }, color: 'bg-purple-500 hover:bg-purple-600' }])
 
       }
     }
