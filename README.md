@@ -2,6 +2,8 @@
 
 A Vue 3 tool for annotating and running NLP tasks (sequence labeling, classification, seq2seq, bio-tagging) on custom data.
 
+![EeveeTest screenshot](docs/screenshot.png)
+
 ## Features
 
 - 🏷️ **Multiple task types** — dedicated views for sequence labeling (`Seq`), classification (`Class`), seq2seq (`Seq2Seq`), and biological sequence tagging (`SeqBio`)
