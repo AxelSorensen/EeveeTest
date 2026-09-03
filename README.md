@@ -1,7 +1,37 @@
-# Vue 3 + Vite
+# 🦊 Eevee NLP
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+A Vue 3 tool for annotating and running NLP tasks (sequence labeling, classification, seq2seq, bio-tagging) on custom data.
 
-## Recommended IDE Setup
+## Features
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+- 🏷️ **Multiple task types** — dedicated views for sequence labeling (`Seq`), classification (`Class`), seq2seq (`Seq2Seq`), and biological sequence tagging (`SeqBio`)
+- ✍️ **Annotation workspace** — a data field, task field, and controls for labeling text, plus a sidebar for navigating datasets
+- ⚙️ **Background processing** — a web worker (`worker.js`) offloads heavier NLP computation from the UI thread
+- 📱 **Installable** — configured as a PWA via `vite-plugin-pwa`
+
+## Installation
+
+```bash
+git clone <this repo>
+cd EeveeTest
+npm install
+```
+
+## Usage
+
+```bash
+npm run dev
+```
+
+Then open the printed local URL (default Vite port, typically [http://localhost:5173](http://localhost:5173)).
+
+## Built with
+
+- [Vue 3](https://vuejs.org/) + [Vite](https://vitejs.dev/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- Font Awesome icons
+- Vue Router
+
+## Status
+
+🚧 Prototype — functional task views exist for several NLP annotation types, but there's no backend/persistence layer visible; annotations likely live in-memory only.
