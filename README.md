@@ -35,3 +35,5 @@ Then open the printed local URL (default Vite port, typically [http://localhost:
 ## Status
 
 🚧 Prototype — functional task views exist for several NLP annotation types, but there's no backend/persistence layer visible; annotations likely live in-memory only.
+
+✅ Runs cleanly — `npm install && npm run build` verified working as of 2026-09-03 (Vite + PWA build succeeds with no errors).
